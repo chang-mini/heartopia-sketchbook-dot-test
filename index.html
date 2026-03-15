@@ -249,6 +249,9 @@
       box-shadow: none;
       font-size: 14px;
       font-weight: 800;
+      appearance: none;
+      -webkit-appearance: none;
+      -webkit-tap-highlight-color: transparent;
     }
 
     .mode-tab:hover:not(:disabled) {
@@ -258,10 +261,29 @@
       background: rgba(255, 255, 255, .6);
     }
 
+    .mode-tab:active:not(:disabled),
+    .mode-tab:focus-visible:not(:disabled) {
+      color: var(--muted-strong);
+      border-color: rgba(35, 27, 23, .08);
+      background: rgba(255, 255, 255, .6);
+      box-shadow: none;
+      transform: none;
+    }
+
     .mode-tab.is-active {
       color: #fff9f3;
       background: linear-gradient(135deg, #4f3a2d, #8d5c43);
       box-shadow: 0 12px 22px rgba(79, 58, 45, .18);
+    }
+
+    .mode-tab.is-active:hover:not(:disabled),
+    .mode-tab.is-active:active:not(:disabled),
+    .mode-tab.is-active:focus-visible:not(:disabled) {
+      color: #fff9f3;
+      border-color: transparent;
+      background: linear-gradient(135deg, #4f3a2d, #8d5c43);
+      box-shadow: 0 12px 22px rgba(79, 58, 45, .18);
+      transform: none;
     }
 
     .mode-tab:disabled {
@@ -2072,7 +2094,7 @@
     </div>
   </div>
   <script src="https://cdn.jsdelivr.net/pyodide/v0.29.3/full/pyodide.js"></script>
-  <script type="module" src="./js/app.js?v=20260315-githubiotest-4"></script>
+  <script type="module" src="./js/app.js?v=20260315-githubiotest-5"></script>
 </body>
 
 </html>
