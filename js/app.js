@@ -1042,6 +1042,12 @@ function setCropStageExpanded(nextExpanded) {
     expandedCropModal.hidden = !isCropStageExpanded;
     expandedCropModal.classList.toggle("is-book-mode", activeMode === APP_MODES.BOOK);
   }
+  if (expandedSketchbookOptions) {
+    expandedSketchbookOptions.hidden = activeMode !== APP_MODES.SKETCHBOOK;
+  }
+  if (expandedBookSegmentWrap) {
+    expandedBookSegmentWrap.hidden = activeMode !== APP_MODES.BOOK;
+  }
   if (isCropStageExpanded) {
     expandedCropSelection = cloneCropSelection(cropSelection) || createCropSelection(0.9, "expanded");
     expandedCropDraft = null;
