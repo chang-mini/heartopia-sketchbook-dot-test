@@ -22,6 +22,9 @@ const expandedResetCropButton = document.getElementById("expanded-reset-crop");
 const expandedFullCropButton = document.getElementById("expanded-full-crop");
 const expandedCloseCropButton = document.getElementById("expanded-close-crop");
 const expandedSubmitCropButton = document.getElementById("expanded-submit-crop");
+const expandedSketchbookOptions = document.getElementById("expanded-sketchbook-options");
+const expandedRatioInput = document.getElementById("expanded-ratio");
+const expandedPrecisionInput = document.getElementById("expanded-precision");
 const expandedBookSegmentWrap = document.getElementById("expanded-book-segment-wrap");
 const expandedBookSegmentInput = document.getElementById("expanded-book-segment");
 const bookSegmentOverlays = document.getElementById("book-segment-overlays");
@@ -226,6 +229,7 @@ const cropViews = {
 
 imageInput?.addEventListener("change", handleImageSelection);
 ratioInput?.addEventListener("change", handleRatioChange);
+precisionInput?.addEventListener("change", handlePrecisionChange);
 form?.addEventListener("submit", startConversion);
 submitButton?.addEventListener("click", startConversion);
 expandedSubmitCropButton?.addEventListener("click", applyExpandedCropSelectionAndConvert);
@@ -260,6 +264,8 @@ palettePrevButton?.addEventListener("click", () => shiftPalettePage(-1));
 paletteNextButton?.addEventListener("click", () => shiftPalettePage(1));
 bookSegmentInput?.addEventListener("change", handleBookSegmentChange);
 expandedBookSegmentInput?.addEventListener("change", handleBookSegmentChange);
+expandedRatioInput?.addEventListener("change", handleExpandedRatioChange);
+expandedPrecisionInput?.addEventListener("change", handleExpandedPrecisionChange);
 modeTabButtons.forEach((button) => button.addEventListener("click", handleModeTabClick));
 window.addEventListener("pointermove", handleCropPointerMove);
 window.addEventListener("pointerup", handleCropPointerEnd);
@@ -375,6 +381,10 @@ function applyModeUi() {
   if (expandedBookSegmentWrap) {
     expandedBookSegmentWrap.hidden = !isBookMode;
   }
+  if (expandedSketchbookOptions) {
+    expandedSketchbookOptions.hidden = isBookMode;
+  }
+  syncExpandedSketchbookControls();
   expandedCropModal?.classList.toggle("is-book-mode", isBookMode);
 
   modeTabButtons.forEach((button) => {
@@ -905,12 +915,47 @@ function handleImageSelection() {
 }
 
 function handleRatioChange() {
+  syncExpandedSketchbookControls();
+  if (activeMode !== APP_MODES.SKETCHBOOK) {
+    return;
+  }
   if (!selectedFile) {
     return;
   }
 
   if (cropImage?.naturalWidth) {
-    resetCropSelection();
+    const targetViewKey = isCropStageExpanded ? "expanded" : "sidebar";
+    applyDefaultCropSelection(targetViewKey);
+    if (targetViewKey === "expanded") {
+      syncExpandedSelectionToSidebar();
+    }
+  }
+}
+
+function handlePrecisionChange() {
+  syncExpandedSketchbookControls();
+}
+
+function handleExpandedRatioChange(event) {
+  if (ratioInput) {
+    ratioInput.value = event.target.value;
+  }
+  handleRatioChange();
+}
+
+function handleExpandedPrecisionChange(event) {
+  if (precisionInput) {
+    precisionInput.value = event.target.value;
+  }
+  handlePrecisionChange();
+}
+
+function syncExpandedSketchbookControls() {
+  if (expandedRatioInput && ratioInput) {
+    expandedRatioInput.value = ratioInput.value;
+  }
+  if (expandedPrecisionInput && precisionInput) {
+    expandedPrecisionInput.value = precisionInput.value;
   }
 }
 
