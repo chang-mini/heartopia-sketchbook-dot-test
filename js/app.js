@@ -166,6 +166,7 @@ const PALETTE_BY_CODE = new Map(PALETTE.map((item) => [item.code, item]));
 const PYODIDE_INDEX_URL = "https://cdn.jsdelivr.net/pyodide/v0.29.3/full/";
 const PYTHON_MODULE_DIR = "../python";
 const PYTHON_MODULE_FILES = ["palette.py", "presets.py", "converter.py"];
+const PYTHON_MODULE_VERSION = "20260315-2";
 
 let activeSocket = null;
 let activeJobId = null;
@@ -1676,7 +1677,7 @@ async function syncPythonModules(pyodide) {
   }
 
   for (const moduleFile of PYTHON_MODULE_FILES) {
-    const moduleUrl = new URL(`${PYTHON_MODULE_DIR}/${moduleFile}`, import.meta.url);
+    const moduleUrl = new URL(`${PYTHON_MODULE_DIR}/${moduleFile}?v=${PYTHON_MODULE_VERSION}`, import.meta.url);
     const response = await fetch(moduleUrl);
     if (!response.ok) {
       throw new Error(`Python 모듈을 불러오지 못했습니다: ${moduleFile}`);

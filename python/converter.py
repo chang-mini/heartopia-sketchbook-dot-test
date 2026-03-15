@@ -37,7 +37,9 @@ def convert_dot_snapshot(payload_json: str) -> str:
         image = corrected.convert("RGBA")
         background = Image.new("RGBA", image.size, "white")
         composed = Image.alpha_composite(background, image).convert("RGB")
-        fitted = ImageOps.fit(composed, (width, height), method=RESAMPLING.LANCZOS)
+        # The browser crop box already defines the exact framing.
+        # Resize directly so the selected area is preserved without a second crop.
+        fitted = composed.resize((width, height), resample=RESAMPLING.LANCZOS)
         source_pixels = list(fitted.getdata())
 
     usage: Counter[str] = Counter()
