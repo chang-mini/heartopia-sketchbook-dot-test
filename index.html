@@ -1170,6 +1170,12 @@
       gap: 10px;
     }
 
+    .viewer-color-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
     .viewer-color-sample {
       display: inline-flex;
       align-items: center;
@@ -1201,6 +1207,21 @@
     .viewer-color-reset:hover {
       border-color: rgba(187, 92, 50, .28);
       color: var(--accent-strong);
+    }
+
+    .viewer-color-confirm {
+      border: 1px solid rgba(187, 92, 50, .2);
+      background: linear-gradient(135deg, rgba(187, 92, 50, .96), rgba(148, 65, 31, .96));
+      color: #fffaf3;
+      padding: 8px 12px;
+      border-radius: 12px;
+      font: inherit;
+      cursor: pointer;
+      box-shadow: 0 10px 20px rgba(148, 65, 31, .18);
+    }
+
+    .viewer-color-confirm:hover {
+      filter: brightness(1.04);
     }
 
     .guide-viewport {
@@ -2095,7 +2116,10 @@
                   </label>
                   <div class="viewer-color-foot">
                     <span class="viewer-color-sample" id="grid-color-sample">미리보기</span>
-                    <button class="viewer-color-reset" id="grid-color-reset" type="button">기본색</button>
+                    <div class="viewer-color-actions">
+                      <button class="viewer-color-reset" id="grid-color-reset" type="button">기본색</button>
+                      <button class="viewer-color-confirm" id="grid-color-confirm" type="button">확인</button>
+                    </div>
                   </div>
                 </div>
               </div>

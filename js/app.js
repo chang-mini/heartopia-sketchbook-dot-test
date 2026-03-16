@@ -40,6 +40,7 @@ const gridColorValue = document.getElementById("grid-color-value");
 const gridColorChip = document.getElementById("grid-color-chip");
 const gridColorSample = document.getElementById("grid-color-sample");
 const gridColorResetButton = document.getElementById("grid-color-reset");
+const gridColorConfirmButton = document.getElementById("grid-color-confirm");
 const saveCurrentButton = document.getElementById("save-current");
 const savedFileInput = document.getElementById("saved-file");
 const savedStatus = document.getElementById("saved-status");
@@ -291,6 +292,7 @@ saveCurrentButton?.addEventListener("click", saveCurrentConversion);
 gridColorToggleButton?.addEventListener("click", toggleGridColorPanel);
 gridColorInput?.addEventListener("input", handleGridColorInput);
 gridColorResetButton?.addEventListener("click", resetGuideGridColor);
+gridColorConfirmButton?.addEventListener("click", confirmGuideGridColor);
 savedFileInput?.addEventListener("change", handleSavedFileSelection);
 paletteMultiToggleButton?.addEventListener("click", togglePaletteMultiSelect);
 paletteCompleteButton?.addEventListener("click", completeActiveColorCells);
@@ -343,6 +345,11 @@ function handleGridColorInput(event) {
 
 function resetGuideGridColor() {
   applyGuideGridColor(DEFAULT_GUIDE_GRID_COLOR);
+}
+
+function confirmGuideGridColor() {
+  setGridColorPanelOpen(false);
+  gridColorToggleButton?.focus();
 }
 
 function handleGridColorPointerDown(event) {
