@@ -1044,6 +1044,8 @@
     .viewer-summary {
       display: grid;
       gap: 4px;
+      flex: 1 1 auto;
+      min-width: 0;
     }
 
     #viewer-note {
@@ -1063,13 +1065,17 @@
     .viewer-actions {
       display: flex;
       align-items: center;
+      justify-content: flex-end;
       gap: 10px;
       flex-wrap: wrap;
+      margin-left: auto;
+      flex: 0 0 auto;
     }
 
     .viewer-action-row {
       display: flex;
       align-items: center;
+      justify-content: flex-end;
       gap: 10px;
       flex-wrap: wrap;
     }
