@@ -1,205 +1,101 @@
-import { CANVAS_PRESETS, PALETTE } from "./config.js";
-
-const form = document.getElementById("conversion-form");
-const imageInput = document.getElementById("image");
-const ratioInput = document.getElementById("ratio");
-const precisionInput = document.getElementById("precision");
-const submitButton = document.getElementById("submit-button");
-const resetCropButton = document.getElementById("reset-crop");
-const fullCropButton = document.getElementById("full-crop");
-const cropStage = document.getElementById("crop-stage");
-const cropFrame = document.getElementById("crop-frame");
-const cropImage = document.getElementById("crop-image");
-const cropBox = document.getElementById("crop-box");
-const cropMeta = document.getElementById("crop-meta");
-const expandCropButton = document.getElementById("expand-crop");
-const expandedCropModal = document.getElementById("expanded-crop-modal");
-const expandedCropFrame = document.getElementById("expanded-crop-frame");
-const expandedCropImage = document.getElementById("expanded-crop-image");
-const expandedCropBox = document.getElementById("expanded-crop-box");
-const expandedCropMeta = document.getElementById("expanded-crop-meta");
-const expandedResetCropButton = document.getElementById("expanded-reset-crop");
-const expandedFullCropButton = document.getElementById("expanded-full-crop");
-const expandedCloseCropButton = document.getElementById("expanded-close-crop");
-const expandedSubmitCropButton = document.getElementById("expanded-submit-crop");
-const expandedSketchbookOptions = document.getElementById("expanded-sketchbook-options");
-const expandedRatioInput = document.getElementById("expanded-ratio");
-const expandedPrecisionInput = document.getElementById("expanded-precision");
-const expandedBookSegmentWrap = document.getElementById("expanded-book-segment-wrap");
-const expandedBookSegmentInput = document.getElementById("expanded-book-segment");
-const bookSegmentOverlays = document.getElementById("book-segment-overlays");
-const expandedBookSegmentOverlays = document.getElementById("expanded-book-segment-overlays");
-const statusPill = document.getElementById("status-pill");
-const progressBar = document.getElementById("progress-bar");
-const viewerNote = document.getElementById("viewer-note");
-const gridColorControl = document.getElementById("grid-color-control");
-const gridColorToggleButton = document.getElementById("grid-color-toggle");
-const gridColorPanel = document.getElementById("grid-color-panel");
-const gridColorInput = document.getElementById("grid-color-input");
-const gridColorValue = document.getElementById("grid-color-value");
-const gridColorChip = document.getElementById("grid-color-chip");
-const gridColorSample = document.getElementById("grid-color-sample");
-const gridColorResetButton = document.getElementById("grid-color-reset");
-const saveCurrentButton = document.getElementById("save-current");
-const savedFileInput = document.getElementById("saved-file");
-const savedStatus = document.getElementById("saved-status");
-const guideViewport = document.getElementById("guide-viewport");
-const guideCanvas = document.getElementById("guide-canvas");
-const guideEmpty = document.getElementById("guide-empty");
-const guideEmptyText = document.getElementById("guide-empty-text");
-const mainShell = document.querySelector("main");
-const viewerShell = document.querySelector(".viewer-shell");
-const zoomOutButton = document.getElementById("zoom-out");
-const zoomResetButton = document.getElementById("zoom-reset");
-const zoomInButton = document.getElementById("zoom-in");
-const paletteSidebar = document.getElementById("palette-sidebar");
-const palette = document.getElementById("palette");
-const palettePreview = document.getElementById("palette-preview");
-const paletteFamilyTrack = document.getElementById("palette-family-track");
-const palettePrevButton = document.getElementById("palette-prev");
-const paletteNextButton = document.getElementById("palette-next");
-const paletteMultiToggleButton = document.getElementById("palette-multi-toggle");
-const paletteCompleteButton = document.getElementById("palette-complete");
-const paletteFilterNote = document.getElementById("palette-filter-note");
-const paletteModeIndicator = document.getElementById("palette-mode-indicator");
-const modeSummary = document.getElementById("mode-summary");
-const modeLockedNote = document.getElementById("mode-locked-note");
-const bookRangeField = document.getElementById("book-range-field");
-const bookSegmentInput = document.getElementById("book-segment");
-const modeTabButtons = [...document.querySelectorAll("[data-mode-tab]")];
-const guideContext = guideCanvas?.getContext("2d");
-const DEFAULT_GUIDE_GRID_COLOR = "#5b4736";
-const GUIDE_GRID_COLOR_STORAGE_KEY = "dudot-guide-grid-color";
-
-const APP_MODES = {
-  SKETCHBOOK: "sketchbook",
-  BOOK: "book",
-};
-
-const BOOK_LAYOUT = (() => {
-  const width = 150;
-  const height = 84;
-  const topBlockedRows = 1;
-  const leftBlockedColumns = 5;
-  const rightBlockedColumns = 6;
-  const fadedColumns = 2;
-  const spineLeftColumns = 8;
-  const spineRightColumns = 7;
-  const usableHeight = height - topBlockedRows;
-  const fullWidth = width - leftBlockedColumns - rightBlockedColumns;
-  const spineWidth = spineLeftColumns + spineRightColumns;
-  const coverWidth = Math.floor((fullWidth - spineWidth) / 2);
-  const spineStartColumn = leftBlockedColumns + coverWidth;
-
-  return {
-    width,
-    height,
-    ratio: "16:9",
-    precision: 4,
-    topBlockedRows,
-    leftBlockedColumns,
-    rightBlockedColumns,
-    fadedColumns,
-    spineLeftColumns,
-    spineRightColumns,
-    usableHeight,
-    segments: {
-      full: {
-        id: "full",
-        label: "전체",
-        startColumn: leftBlockedColumns,
-        width: fullWidth,
-      },
-      back_cover: {
-        id: "back_cover",
-        label: "뒷면표지",
-        startColumn: leftBlockedColumns,
-        width: coverWidth,
-      },
-      spine: {
-        id: "spine",
-        label: "책등",
-        startColumn: spineStartColumn,
-        width: spineWidth,
-      },
-      front_cover: {
-        id: "front_cover",
-        label: "앞면표지",
-        startColumn: spineStartColumn + spineWidth,
-        width: coverWidth,
-      },
-    },
-  };
-})();
-
-const viewerState = {
-  gridCodes: [],
-  paletteByCode: new Map(),
-  columns: 0,
-  rows: 0,
-  fitScale: 1,
-  scale: 1,
-  minScale: 1,
-  maxScale: 1,
-  panX: 0,
-  panY: 0,
-  hoverColumn: null,
-  hoverRow: null,
-  activeColorCode: null,
-  activeColorCodes: [],
-  completedCells: new Set(),
-};
-
-const paletteState = {
-  groups: [],
-  page: 0,
-  activeGroup: null,
-  multiSelectEnabled: false,
-  rememberedMultiColorCodes: [],
-};
-
-const GROUP_MAIN_COLORS = {
-  Black: "#000000",
-  Red: "#ea696d",
-  Orange: "#f77f54",
-  Amber: "#fdab34",
-  Yellow: "#f7d230",
-  Pistachio: "#b5c728",
-  Green: "#40b678",
-  Aqua: "#01aa9f",
-  Blue: "#0094b5",
-  Indigo: "#2981c0",
-  Purple: "#7474bb",
-  Magenta: "#a164a7",
-  Pink: "#cd638b",
-};
-
-const GROUP_DISPLAY_ORDER = [
-  "Black",
-  "Red",
-  "Orange",
-  "Amber",
-  "Yellow",
-  "Pistachio",
-  "Green",
-  "Aqua",
-  "Blue",
-  "Indigo",
-  "Purple",
-  "Magenta",
-  "Pink",
-];
-
-const DEFAULT_PALETTE_ITEMS = PALETTE.map((item) => ({
-  ...item,
-  count: 0,
-}));
-
-const PALETTE_BY_CODE = new Map(PALETTE.map((item) => [item.code, item]));
-const PYODIDE_INDEX_URL = "https://cdn.jsdelivr.net/pyodide/v0.29.3/full/";
-const PYTHON_MODULE_DIR = "../python";
-const PYTHON_MODULE_FILES = ["palette.py", "presets.py", "converter.py"];
-const PYTHON_MODULE_VERSION = "20260315-2";
+import {
+  APP_MODES,
+  BOOK_LAYOUT,
+  DEFAULT_GUIDE_GRID_COLOR,
+  DEFAULT_PALETTE_ITEMS,
+  GUIDE_GRID_COLOR_STORAGE_KEY,
+} from "../config/app-constants.js";
+import {
+  bookRangeField,
+  bookSegmentInput,
+  cropBox,
+  cropFrame,
+  cropImage,
+  cropMeta,
+  expandCropButton,
+  expandedBookSegmentInput,
+  expandedBookSegmentWrap,
+  expandedCloseCropButton,
+  expandedCropBox,
+  expandedCropFrame,
+  expandedCropImage,
+  expandedCropMeta,
+  expandedCropModal,
+  expandedFullCropButton,
+  expandedPrecisionInput,
+  expandedRatioInput,
+  expandedResetCropButton,
+  expandedSketchbookOptions,
+  expandedSubmitCropButton,
+  form,
+  fullCropButton,
+  gridColorChip,
+  gridColorControl,
+  gridColorInput,
+  gridColorPanel,
+  gridColorResetButton,
+  gridColorSample,
+  gridColorToggleButton,
+  gridColorValue,
+  guideCanvas,
+  guideContext,
+  guideEmpty,
+  guideEmptyText,
+  guideViewport,
+  imageInput,
+  mainShell,
+  modeLockedNote,
+  modeSummary,
+  modeTabButtons,
+  palette,
+  paletteCompleteButton,
+  paletteFamilyTrack,
+  paletteFilterNote,
+  paletteModeIndicator,
+  paletteMultiToggleButton,
+  paletteNextButton,
+  palettePreview,
+  palettePrevButton,
+  paletteSidebar,
+  precisionInput,
+  progressBar,
+  ratioInput,
+  resetCropButton,
+  saveCurrentButton,
+  savedFileInput,
+  savedStatus,
+  statusPill,
+  submitButton,
+  viewerNote,
+  viewerShell,
+  zoomInButton,
+  zoomOutButton,
+  zoomResetButton,
+} from "../infrastructure/browser/dom-elements.js";
+import { buildCroppedFilename, canvasToBlob, getPreferredUploadType, triggerFileDownload } from "../infrastructure/browser/files.js";
+import { createPyodideConverter } from "../infrastructure/pyodide/runtime.js";
+import { createDefaultModeUiState, cropViews, paletteState, viewerState } from "./state.js";
+import {
+  cloneGridCodes,
+  createEmptyGridCodes,
+  getBookFullGuideSegments,
+  getBookSegment,
+  mergeBookSegmentIntoGrid,
+  normalizeBookAppliedSegments,
+  normalizeBookSegmentCrops,
+  normalizeStoredBookCrop,
+} from "../domain/book/grid.js";
+import {
+  buildUsedColorsFromGrid,
+  getGuideLabelColor,
+  hexToRgb,
+  mixHexColors,
+  normalizeHexColor,
+  rgbaFromHexColor,
+} from "../domain/palette/color-utils.js";
+import { buildPaletteGroups } from "../domain/palette/groups.js";
+import { buildSavedFilename, extractPortableSnapshot, isPortableSnapshot } from "../domain/snapshot/portable.js";
+import { clamp } from "../domain/shared/math.js";
 
 let activeSocket = null;
 let activeJobId = null;
@@ -219,7 +115,6 @@ let guideGridColor = DEFAULT_GUIDE_GRID_COLOR;
 let pendingConversionContext = { mode: APP_MODES.SKETCHBOOK, bookSegmentId: null, bookSegmentCrop: null };
 let sketchbookSnapshot = null;
 let bookSnapshot = null;
-let pyodideReadyPromise = null;
 const modeUiStates = {
   [APP_MODES.SKETCHBOOK]: {
     snapshotKey: null,
@@ -237,26 +132,7 @@ const cropResizeObserver = typeof ResizeObserver === "function"
     scheduleCropLayoutRefresh();
   })
   : null;
-const cropViews = {
-  sidebar: {
-    key: "sidebar",
-    stage: cropStage,
-    frame: cropFrame,
-    image: cropImage,
-    box: cropBox,
-    meta: cropMeta,
-    overlays: bookSegmentOverlays,
-  },
-  expanded: {
-    key: "expanded",
-    stage: expandedCropModal,
-    frame: expandedCropFrame,
-    image: expandedCropImage,
-    box: expandedCropBox,
-    meta: expandedCropMeta,
-    overlays: expandedBookSegmentOverlays,
-  },
-};
+const { convertImageLocally } = createPyodideConverter({ setStatus });
 
 imageInput?.addEventListener("change", handleImageSelection);
 ratioInput?.addEventListener("change", handleRatioChange);
@@ -539,26 +415,6 @@ function renderEmptyBookWorkspace() {
   renderBookCropOverlays();
 }
 
-function createEmptyGridCodes(width, height, fillCode = "") {
-  return Array.from({ length: height }, () => Array.from({ length: width }, () => fillCode));
-}
-
-function cloneGridCodes(gridCodes) {
-  return gridCodes.map((row) => [...row]);
-}
-
-function getBookSegment(segmentId) {
-  return BOOK_LAYOUT.segments[segmentId] || BOOK_LAYOUT.segments.back_cover;
-}
-
-function getBookFullGuideSegments() {
-  return [
-    BOOK_LAYOUT.segments.back_cover,
-    BOOK_LAYOUT.segments.spine,
-    BOOK_LAYOUT.segments.front_cover,
-  ];
-}
-
 function buildBookSnapshotFromGrid(gridCodes, sourceFilename = null, appliedSegments = [], segmentCrops = {}) {
   return {
     job_id: `book-${Date.now()}`,
@@ -581,68 +437,6 @@ function buildBookSnapshotFromGrid(gridCodes, sourceFilename = null, appliedSegm
   };
 }
 
-function normalizeBookAppliedSegments(segments) {
-  if (!Array.isArray(segments)) {
-    return [];
-  }
-  const seen = new Set();
-  return segments.filter((segmentId) => {
-    if (!BOOK_LAYOUT.segments[segmentId] || seen.has(segmentId)) {
-      return false;
-    }
-    seen.add(segmentId);
-    return true;
-  });
-}
-
-function normalizeBookSegmentCrops(crops) {
-  if (!crops || typeof crops !== "object") {
-    return {};
-  }
-
-  const normalized = {};
-  for (const [segmentId, crop] of Object.entries(crops)) {
-    if (!BOOK_LAYOUT.segments[segmentId]) {
-      continue;
-    }
-    const normalizedCrop = normalizeStoredBookCrop(crop);
-    if (!normalizedCrop) {
-      continue;
-    }
-    normalized[segmentId] = normalizedCrop;
-  }
-  return normalized;
-}
-
-function normalizeStoredBookCrop(crop) {
-  if (!crop || typeof crop !== "object") {
-    return null;
-  }
-
-  const x = Number(crop.x);
-  const y = Number(crop.y);
-  const width = Number(crop.width);
-  const height = Number(crop.height);
-  if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(width) || !Number.isFinite(height)) {
-    return null;
-  }
-  if (x < 0 || y < 0 || width <= 0 || height <= 0) {
-    return null;
-  }
-
-  const normalizedWidth = clamp(width, 0.02, 1);
-  const normalizedHeight = clamp(height, 0.02, 1);
-  return {
-    x: clamp(x, 0, 1 - normalizedWidth),
-    y: clamp(y, 0, 1 - normalizedHeight),
-    width: normalizedWidth,
-    height: normalizedHeight,
-    source_filename: typeof crop.source_filename === "string" && crop.source_filename.trim()
-      ? crop.source_filename.trim()
-      : null,
-  };
-}
-
 function buildCurrentBookSegmentCrop() {
   if (!cropSelection) {
     return null;
@@ -652,38 +446,6 @@ function buildCurrentBookSegmentCrop() {
     ...cropSelection,
     source_filename: selectedFile?.name || null,
   });
-}
-
-function buildUsedColorsFromGrid(gridCodes) {
-  const counts = new Map();
-  for (const row of gridCodes) {
-    for (const code of row) {
-      if (!code || !PALETTE_BY_CODE.has(code)) {
-        continue;
-      }
-      counts.set(code, (counts.get(code) || 0) + 1);
-    }
-  }
-
-  return [...counts.entries()]
-    .map(([code, count]) => ({ ...PALETTE_BY_CODE.get(code), count }))
-    .sort((left, right) => {
-      const leftIndex = PALETTE.findIndex((item) => item.code === left.code);
-      const rightIndex = PALETTE.findIndex((item) => item.code === right.code);
-      return leftIndex - rightIndex;
-    });
-}
-
-function mergeBookSegmentIntoGrid(baseGridCodes, segmentId, segmentGridCodes) {
-  const segment = getBookSegment(segmentId);
-  const nextGridCodes = cloneGridCodes(baseGridCodes);
-  for (let row = 0; row < BOOK_LAYOUT.usableHeight; row += 1) {
-    const targetRow = BOOK_LAYOUT.topBlockedRows + row;
-    for (let offset = 0; offset < segment.width; offset += 1) {
-      nextGridCodes[targetRow][segment.startColumn + offset] = segmentGridCodes[row]?.[offset] || "";
-    }
-  }
-  return nextGridCodes;
 }
 
 function setPaletteVisibility(visible) {
@@ -1694,182 +1456,6 @@ async function buildUploadFile(file) {
   });
 }
 
-function canvasToBlob(canvas, type) {
-  return new Promise((resolve) => {
-    canvas.toBlob((blob) => resolve(blob), type, 0.95);
-  });
-}
-
-function getPreferredUploadType(fileType) {
-  return ["image/png", "image/jpeg", "image/webp"].includes(fileType) ? fileType : "image/png";
-}
-
-function buildCroppedFilename(filename, mimeType) {
-  const extension = mimeType === "image/jpeg"
-    ? ".jpg"
-    : mimeType === "image/webp"
-      ? ".webp"
-      : ".png";
-  const baseName = filename.replace(/\.[^.]+$/, "") || "upload";
-  return `${baseName}-crop${extension}`;
-}
-
-function getCanvasPreset(ratio, precision, canvasWidth = null, canvasHeight = null) {
-  if (Number.isFinite(canvasWidth) && Number.isFinite(canvasHeight)) {
-    return {
-      ratio,
-      precision,
-      width: Number(canvasWidth),
-      height: Number(canvasHeight),
-    };
-  }
-
-  const ratioPresets = CANVAS_PRESETS[ratio];
-  const size = ratioPresets?.[precision];
-  if (!size) {
-    throw new Error(`지원하지 않는 비율 또는 정밀도입니다: ${ratio} / ${precision}`);
-  }
-
-  return {
-    ratio,
-    precision,
-    width: size[0],
-    height: size[1],
-  };
-}
-
-async function convertImageLocally({
-  file,
-  originalName,
-  ratio,
-  precision,
-  canvasWidth = null,
-  canvasHeight = null,
-}) {
-  const preset = getCanvasPreset(ratio, precision, canvasWidth, canvasHeight);
-  const pyodide = await ensurePythonRuntime();
-  await nextFrame();
-  setStatus("로컬 변환 중", `${preset.width} x ${preset.height} 도안을 브라우저 안에서 생성하고 있습니다.`, 32);
-  const mapped = await convertWithPythonRuntime(pyodide, {
-    file,
-    originalName,
-    ratio,
-    precision,
-    canvasWidth: preset.width,
-    canvasHeight: preset.height,
-  });
-
-  const timestamp = new Date().toISOString();
-  return {
-    job_id: `local-${Date.now()}`,
-    filename: originalName,
-    ratio,
-    precision,
-    status: "completed",
-    progress: 100,
-    message: "브라우저 안에서 도안 생성이 완료되었습니다.",
-    created_at: timestamp,
-    updated_at: timestamp,
-    width: preset.width,
-    height: preset.height,
-    used_colors: mapped.used_colors,
-    grid_codes: mapped.grid_codes,
-  };
-}
-
-async function ensurePythonRuntime() {
-  if (pyodideReadyPromise) {
-    return pyodideReadyPromise;
-  }
-
-  pyodideReadyPromise = (async () => {
-    if (typeof globalThis.loadPyodide !== "function") {
-      throw new Error("Pyodide 엔진을 불러오지 못했습니다.");
-    }
-
-    setStatus("파이썬 준비 중", "브라우저용 Python 엔진을 불러오는 중입니다.", 6);
-    const pyodide = await globalThis.loadPyodide({ indexURL: PYODIDE_INDEX_URL });
-    setStatus("파이썬 준비 중", "이미지 처리를 위한 Pillow를 불러오는 중입니다.", 12);
-    await pyodide.loadPackage("pillow");
-    await syncPythonModules(pyodide);
-    pyodide.runPython("from converter import convert_dot_snapshot");
-    return pyodide;
-  })();
-
-  return pyodideReadyPromise;
-}
-
-async function convertWithPythonRuntime(pyodide, {
-  file,
-  originalName,
-  ratio,
-  precision,
-  canvasWidth,
-  canvasHeight,
-}) {
-  const bytes = new Uint8Array(await file.arrayBuffer());
-  const safeName = buildPythonSafeFilename(file.name || originalName || "upload.png");
-  const inputPath = `/tmp/${Date.now()}-${safeName}`;
-  pyodide.FS.writeFile(inputPath, bytes);
-
-  try {
-    const payload = JSON.stringify({
-      path: inputPath,
-      filename: originalName,
-      ratio,
-      precision,
-      canvas_width: canvasWidth,
-      canvas_height: canvasHeight,
-    });
-
-    pyodide.globals.set("conversion_payload_json", payload);
-    const resultJson = await pyodide.runPythonAsync("convert_dot_snapshot(conversion_payload_json)");
-    pyodide.globals.delete("conversion_payload_json");
-    await nextFrame();
-    setStatus("정리 중", "도안 결과를 화면에 적용하는 중입니다.", 90);
-    return JSON.parse(resultJson);
-  } finally {
-    try {
-      pyodide.FS.unlink(inputPath);
-    } catch {
-    }
-  }
-}
-
-function buildPythonSafeFilename(filename) {
-  return filename.replace(/[^A-Za-z0-9._-]/g, "_");
-}
-
-async function syncPythonModules(pyodide) {
-  const workspaceDir = "/workspace";
-  try {
-    pyodide.FS.mkdir(workspaceDir);
-  } catch {
-  }
-
-  for (const moduleFile of PYTHON_MODULE_FILES) {
-    const moduleUrl = new URL(`${PYTHON_MODULE_DIR}/${moduleFile}?v=${PYTHON_MODULE_VERSION}`, import.meta.url);
-    const response = await fetch(moduleUrl);
-    if (!response.ok) {
-      throw new Error(`Python 모듈을 불러오지 못했습니다: ${moduleFile}`);
-    }
-    const source = await response.text();
-    pyodide.FS.writeFile(`${workspaceDir}/${moduleFile}`, source);
-  }
-
-  pyodide.runPython(`
-import sys
-if "/workspace" not in sys.path:
-    sys.path.insert(0, "/workspace")
-`);
-}
-
-function nextFrame() {
-  return new Promise((resolve) => {
-    window.requestAnimationFrame(() => resolve());
-  });
-}
-
 async function saveCurrentConversion() {
   if (!isPortableSnapshot(currentResultSnapshot)) {
     return;
@@ -1923,12 +1509,6 @@ async function loadSavedFile(file) {
   }
 }
 
-function buildSavedFilename(snapshot) {
-  const baseName = (snapshot.filename || "duduta-dot").replace(/\.[^.]+$/, "") || "duduta-dot";
-  const modeLabel = snapshot.canvas_mode === APP_MODES.BOOK ? "book" : "sketchbook";
-  return `${baseName}-${modeLabel}-${snapshot.ratio}-p${snapshot.precision}.dudot.json`;
-}
-
 function buildPortableSnapshot(snapshot) {
   return {
     job_id: snapshot.job_id || `local-${Date.now()}`,
@@ -1948,18 +1528,6 @@ function buildPortableSnapshot(snapshot) {
     book_selected_segment: snapshot.book_selected_segment || selectedBookSegmentId,
     book_applied_segments: normalizeBookAppliedSegments(snapshot.book_applied_segments),
     book_segment_crops: normalizeBookSegmentCrops(snapshot.book_segment_crops),
-  };
-}
-
-function createDefaultModeUiState() {
-  return {
-    activeColorCode: null,
-    activeColorCodes: [],
-    completedCells: [],
-    palettePage: 0,
-    activeGroup: null,
-    multiSelectEnabled: false,
-    rememberedMultiColorCodes: [],
   };
 }
 
@@ -2079,22 +1647,6 @@ function restoreModeUiStateForSnapshot(snapshot) {
   updateViewerDetail();
 }
 
-function extractPortableSnapshot(payload) {
-  if (!payload || typeof payload !== "object") {
-    return null;
-  }
-
-  if (payload.type === "duduta-dot-save" && payload.snapshot) {
-    return payload.snapshot;
-  }
-
-  if (payload.job && payload.job.grid_codes) {
-    return payload.job;
-  }
-
-  return payload.grid_codes ? payload : null;
-}
-
 function extractSavedUiState(payload) {
   if (!payload || typeof payload !== "object") {
     return null;
@@ -2152,15 +1704,6 @@ function applyModeSnapshot(snapshot) {
   updateSaveButtonState(true);
 }
 
-function isPortableSnapshot(snapshot) {
-  return Boolean(
-    snapshot
-    && Array.isArray(snapshot.grid_codes)
-    && snapshot.grid_codes.length > 0
-    && Array.isArray(snapshot.used_colors),
-  );
-}
-
 function applyImportedConversion(snapshot, sourceName) {
   if (!isPortableSnapshot(snapshot)) {
     return;
@@ -2177,18 +1720,6 @@ function applyImportedConversion(snapshot, sourceName) {
     savedStatus.hidden = true;
     savedStatus.textContent = "";
   }
-}
-
-function triggerFileDownload(blob, filename) {
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
-  anchor.href = url;
-  anchor.download = filename;
-  anchor.rel = "noopener";
-  document.body.append(anchor);
-  anchor.click();
-  anchor.remove();
-  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 function handleSnapshot(snapshot) {
@@ -3267,64 +2798,6 @@ function updatePaletteFilterUi() {
   paletteFilterNote.textContent = "";
 }
 
-function buildPaletteGroups(items) {
-  const map = new Map();
-
-  items.forEach((item) => {
-    if (!map.has(item.group)) {
-      map.set(item.group, {
-        name: item.group,
-        items: [],
-        totalCount: 0,
-        mainColor: GROUP_MAIN_COLORS[item.group] || item.hex_value,
-      });
-    }
-    const group = map.get(item.group);
-    group.items.push(item);
-    group.totalCount += Number(item.count || 0);
-  });
-
-  map.forEach((group) => {
-    group.items.sort((left, right) => getPaletteCodeOrder(left.code) - getPaletteCodeOrder(right.code));
-  });
-
-  return [...map.values()].sort(
-    (left, right) => GROUP_DISPLAY_ORDER.indexOf(left.name) - GROUP_DISPLAY_ORDER.indexOf(right.name),
-  );
-}
-
-function getPaletteCodeOrder(code) {
-  const match = /^([A-Za-z]+)(\d+)$/.exec(code || "");
-  if (!match) {
-    return Number.MAX_SAFE_INTEGER;
-  }
-
-  const [, prefix, numberPart] = match;
-  const groupName = getPaletteGroupNameFromCodePrefix(prefix);
-  const groupIndex = GROUP_DISPLAY_ORDER.indexOf(groupName);
-  return (Math.max(groupIndex, 0) * 100) + Number(numberPart);
-}
-
-function getPaletteGroupNameFromCodePrefix(prefix) {
-  const prefixMap = {
-    B: "Black",
-    Re: "Red",
-    Or: "Orange",
-    Am: "Amber",
-    Ye: "Yellow",
-    Pi: "Pistachio",
-    Gr: "Green",
-    Aq: "Aqua",
-    Bl: "Blue",
-    In: "Indigo",
-    Pu: "Purple",
-    Ma: "Magenta",
-    P: "Pink",
-  };
-
-  return prefixMap[prefix] || "";
-}
-
 function getPaletteGroupNameByCode(code) {
   if (!code) {
     return null;
@@ -3466,41 +2939,6 @@ function renderPaletteDetails() {
   });
 }
 
-function getGuideLabelColor(hexValue) {
-  const [red, green, blue] = hexToRgb(hexValue);
-  const brightness = ((red * 299) + (green * 587) + (blue * 114)) / 1000;
-  return brightness > 165 ? "#2d241c" : "#ffffff";
-}
-
-function mixHexColors(baseHex, overlayHex, overlayWeight = 0.5) {
-  const weight = clamp(overlayWeight, 0, 1);
-  const [baseRed, baseGreen, baseBlue] = hexToRgb(baseHex);
-  const [overlayRed, overlayGreen, overlayBlue] = hexToRgb(overlayHex);
-  const mixChannel = (base, overlay) => Math.round((base * (1 - weight)) + (overlay * weight));
-  return `rgb(${mixChannel(baseRed, overlayRed)}, ${mixChannel(baseGreen, overlayGreen)}, ${mixChannel(baseBlue, overlayBlue)})`;
-}
-
-function hexToRgb(hexValue) {
-  const clean = hexValue.replace("#", "");
-  return [0, 2, 4].map((index) => Number.parseInt(clean.slice(index, index + 2), 16));
-}
-
-function normalizeHexColor(value) {
-  if (typeof value !== "string") {
-    return null;
-  }
-  const trimmed = value.trim();
-  if (!/^#([0-9a-fA-F]{6})$/.test(trimmed)) {
-    return null;
-  }
-  return `#${trimmed.slice(1).toLowerCase()}`;
-}
-
-function rgbaFromHexColor(hexValue, alpha = 1) {
-  const [red, green, blue] = hexToRgb(normalizeHexColor(hexValue) || DEFAULT_GUIDE_GRID_COLOR);
-  return `rgba(${red}, ${green}, ${blue}, ${clamp(alpha, 0, 1)})`;
-}
-
 function getActivePaletteCodes() {
   if (Array.isArray(viewerState.activeColorCodes) && viewerState.activeColorCodes.length > 0) {
     return viewerState.activeColorCodes;
@@ -3567,10 +3005,6 @@ function getTargetCropRatioLabel() {
 
 function preventDefault(event) {
   event.preventDefault();
-}
-
-function clamp(value, min, max) {
-  return Math.min(max, Math.max(min, value));
 }
 
 function formatStatus(status) {
