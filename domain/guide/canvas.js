@@ -338,13 +338,10 @@ function createGuideCanvasController({
     const lowerHeight = Math.max(0, (endRow - lowerStartRow) * cellSize);
     const leftBlockedWidth = BOOK_LAYOUT.leftBlockedColumns * cellSize;
     const rightBlockedWidth = BOOK_LAYOUT.rightBlockedColumns * cellSize;
-    const fadedWidth = BOOK_LAYOUT.fadedColumns * cellSize;
     const spine = getBookSegment("spine");
     const spineX = viewerState.panX + (spine.startColumn * cellSize);
     const leftBlockedX = viewerState.panX;
     const rightBlockedX = viewerState.panX + ((BOOK_LAYOUT.width - BOOK_LAYOUT.rightBlockedColumns) * cellSize);
-    const leftFadedX = viewerState.panX + (BOOK_LAYOUT.leftBlockedColumns * cellSize);
-    const rightFadedX = viewerState.panX + ((BOOK_LAYOUT.width - BOOK_LAYOUT.rightBlockedColumns - BOOK_LAYOUT.fadedColumns) * cellSize);
 
     guideContext.save();
     if (topBlockedHeight > 0) {
@@ -357,10 +354,6 @@ function createGuideCanvasController({
       guideContext.fillRect(leftBlockedX, viewerState.panY + (lowerStartRow * cellSize), leftBlockedWidth, lowerHeight);
       guideContext.fillRect(rightBlockedX, viewerState.panY + (lowerStartRow * cellSize), rightBlockedWidth, lowerHeight);
 
-      guideContext.fillStyle = "rgba(255, 255, 255, .24)";
-      guideContext.fillRect(leftFadedX, viewerState.panY + (lowerStartRow * cellSize), fadedWidth, lowerHeight);
-      guideContext.fillRect(rightFadedX, viewerState.panY + (lowerStartRow * cellSize), fadedWidth, lowerHeight);
-
       guideContext.fillStyle = "rgba(112, 84, 62, .14)";
       guideContext.fillRect(spineX, viewerState.panY + (lowerStartRow * cellSize), spine.width * cellSize, lowerHeight);
     }
@@ -372,10 +365,8 @@ function createGuideCanvasController({
     const y2 = viewerState.panY + (endRow * cellSize);
     const boundaryColumns = [
       BOOK_LAYOUT.leftBlockedColumns,
-      BOOK_LAYOUT.leftBlockedColumns + BOOK_LAYOUT.fadedColumns,
       BOOK_LAYOUT.segments.spine.startColumn,
       BOOK_LAYOUT.segments.spine.startColumn + BOOK_LAYOUT.segments.spine.width,
-      BOOK_LAYOUT.width - BOOK_LAYOUT.rightBlockedColumns - BOOK_LAYOUT.fadedColumns,
       BOOK_LAYOUT.width - BOOK_LAYOUT.rightBlockedColumns,
     ];
 
