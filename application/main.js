@@ -12,6 +12,7 @@ import {
   cropFrame,
   cropImage,
   cropMeta,
+  cropStage,
   expandCropButton,
   expandedBookSegmentInput,
   expandedBookSegmentWrap,
