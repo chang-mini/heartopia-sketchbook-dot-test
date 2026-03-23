@@ -859,6 +859,9 @@ function exitCanvasFullscreen() {
   window.requestAnimationFrame(() => fitGuideToViewport(true));
 }
 canvasFullscreenButton?.addEventListener("click", enterCanvasFullscreen);
+guideFullscreenClose?.addEventListener("pointerdown", (event) => {
+  event.stopPropagation();
+});
 guideFullscreenClose?.addEventListener("click", exitCanvasFullscreen);
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && guideViewport.classList.contains("is-fullscreen")) {
