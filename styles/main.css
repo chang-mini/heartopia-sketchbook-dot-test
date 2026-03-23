@@ -493,6 +493,9 @@
     .guide-viewport.is-fullscreen {
       position: fixed;
       inset: 0;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
       z-index: 2000;
       border-radius: 0;
       border: none;
@@ -501,20 +504,6 @@
 
     body.canvas-fullscreen {
       overflow: hidden;
-    }
-
-    body.canvas-fullscreen > *:not(.guide-viewport),
-    body.canvas-fullscreen .sidebar,
-    body.canvas-fullscreen .inspector,
-    body.canvas-fullscreen .palette-sidebar,
-    body.canvas-fullscreen main {
-      visibility: hidden;
-      pointer-events: none;
-    }
-
-    body.canvas-fullscreen .guide-viewport.is-fullscreen {
-      visibility: visible;
-      pointer-events: auto;
     }
 
     .guide-fullscreen-close {

@@ -838,7 +838,12 @@ sidebarToggleButton?.addEventListener("click", () => {
   sidebarToggleButton.textContent = isHidden ? "사이드바 보이기" : "사이드바 숨기기";
   sidebar.addEventListener("transitionend", () => fitGuideToViewport(false), { once: true });
 });
+let fullscreenPreviousParent = null;
+let fullscreenPreviousSibling = null;
 function enterCanvasFullscreen() {
+  fullscreenPreviousParent = guideViewport.parentNode;
+  fullscreenPreviousSibling = guideViewport.nextSibling;
+  document.body.appendChild(guideViewport);
   guideViewport.classList.add("is-fullscreen");
   document.body.classList.add("canvas-fullscreen");
   guideFullscreenClose.hidden = false;
@@ -848,6 +853,11 @@ function exitCanvasFullscreen() {
   guideViewport.classList.remove("is-fullscreen");
   document.body.classList.remove("canvas-fullscreen");
   guideFullscreenClose.hidden = true;
+  if (fullscreenPreviousParent) {
+    fullscreenPreviousParent.insertBefore(guideViewport, fullscreenPreviousSibling);
+  }
+  fullscreenPreviousParent = null;
+  fullscreenPreviousSibling = null;
   window.requestAnimationFrame(() => fitGuideToViewport(true));
 }
 canvasFullscreenButton?.addEventListener("click", enterCanvasFullscreen);
