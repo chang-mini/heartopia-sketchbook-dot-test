@@ -631,6 +631,10 @@
       gap: 14px;
     }
 
+    .viewer-head {
+      flex-wrap: wrap;
+    }
+
     .crop-head {
       flex-direction: column;
       align-items: flex-start;
@@ -1147,8 +1151,8 @@
     .viewer-summary {
       display: grid;
       gap: 4px;
-      flex: 1 1 auto;
-      min-width: 0;
+      flex: 0 0 auto;
+      max-width: 320px;
     }
 
     #viewer-note {
