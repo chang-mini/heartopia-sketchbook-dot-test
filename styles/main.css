@@ -503,6 +503,20 @@
       overflow: hidden;
     }
 
+    body.canvas-fullscreen > *:not(.guide-viewport),
+    body.canvas-fullscreen .sidebar,
+    body.canvas-fullscreen .inspector,
+    body.canvas-fullscreen .palette-sidebar,
+    body.canvas-fullscreen main {
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    body.canvas-fullscreen .guide-viewport.is-fullscreen {
+      visibility: visible;
+      pointer-events: auto;
+    }
+
     .guide-fullscreen-close {
       position: absolute;
       top: 12px;
