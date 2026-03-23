@@ -1195,8 +1195,8 @@
     .viewer-button {
       width: auto;
       min-width: 0;
-      padding: 9px 10px;
-      font-size: clamp(11px, 1.2vw, 14px);
+      padding: 11px clamp(8px, 1.2vw, 15px);
+      font-size: clamp(12px, 1.4vw, 14px);
       white-space: nowrap;
     }
 
