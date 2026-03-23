@@ -836,7 +836,9 @@ sidebarToggleButton?.addEventListener("click", () => {
   mainShell.classList.toggle("sidebar-hidden", isHidden);
   sidebarToggleButton.setAttribute("aria-pressed", String(isHidden));
   sidebarToggleButton.textContent = isHidden ? "사이드바 보이기" : "사이드바 숨기기";
-  mainShell.addEventListener("transitionend", () => fitGuideToViewport(true), { once: true });
+  mainShell.addEventListener("transitionend", () => {
+    window.requestAnimationFrame(() => fitGuideToViewport(true));
+  }, { once: true });
 });
 let fullscreenPreviousParent = null;
 let fullscreenPreviousSibling = null;
