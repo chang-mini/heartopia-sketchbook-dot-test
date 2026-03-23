@@ -492,6 +492,9 @@ const {
   handleGuidePointerDown,
   handleGuidePointerEnd,
   handleGuidePointerMove,
+  handleGuideTouchEnd,
+  handleGuideTouchMove,
+  handleGuideTouchStart,
   handleGuideWheel,
   isCodeCompleted,
 } = createGuideInteractionController({
@@ -812,6 +815,9 @@ cropFrame?.addEventListener("dblclick", () => resetCropSelection("sidebar"));
 expandedCropFrame?.addEventListener("dblclick", () => resetCropSelection("expanded"));
 guideViewport?.addEventListener("wheel", handleGuideWheel, { passive: false });
 guideViewport?.addEventListener("pointerdown", handleGuidePointerDown);
+guideViewport?.addEventListener("touchstart", handleGuideTouchStart, { passive: false });
+guideViewport?.addEventListener("touchmove", handleGuideTouchMove, { passive: false });
+guideViewport?.addEventListener("touchend", handleGuideTouchEnd);
 guideViewport?.addEventListener("pointermove", handleGuideHover);
 guideViewport?.addEventListener("pointerleave", clearGuideHover);
 zoomOutButton?.addEventListener("click", () => zoomGuideAtViewportCenter(1 / 1.2));
