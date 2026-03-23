@@ -1145,8 +1145,6 @@
       grid-template-rows: auto minmax(0, 1fr);
       gap: 14px;
       min-height: 0;
-      height: 100%;
-      overflow: hidden;
     }
 
     .viewer-summary {
