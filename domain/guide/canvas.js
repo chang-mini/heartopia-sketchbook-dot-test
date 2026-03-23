@@ -107,9 +107,19 @@ function createGuideCanvasController({
     viewerState.maxScale = Math.max(96, fitScale * 18);
     viewerState.scale = resetPan ? fitScale : clamp(viewerState.scale, viewerState.minScale, viewerState.maxScale);
 
+    const worldWidth = viewerState.columns * viewerState.scale;
+    const worldHeight = viewerState.rows * viewerState.scale;
+
     if (resetPan) {
-      viewerState.panX = (size.width - (viewerState.columns * viewerState.scale)) / 2;
-      viewerState.panY = (size.height - (viewerState.rows * viewerState.scale)) / 2;
+      viewerState.panX = (size.width - worldWidth) / 2;
+      viewerState.panY = (size.height - worldHeight) / 2;
+    } else {
+      if (worldWidth <= size.width) {
+        viewerState.panX = (size.width - worldWidth) / 2;
+      }
+      if (worldHeight <= size.height) {
+        viewerState.panY = (size.height - worldHeight) / 2;
+      }
     }
 
     clampGuidePan();
