@@ -846,13 +846,11 @@ function enterCanvasFullscreen() {
   document.body.appendChild(guideViewport);
   guideViewport.classList.add("is-fullscreen");
   document.body.classList.add("canvas-fullscreen");
-  guideFullscreenClose.hidden = false;
   window.requestAnimationFrame(() => fitGuideToViewport(true));
 }
 function exitCanvasFullscreen() {
   guideViewport.classList.remove("is-fullscreen");
   document.body.classList.remove("canvas-fullscreen");
-  guideFullscreenClose.hidden = true;
   if (fullscreenPreviousParent) {
     fullscreenPreviousParent.insertBefore(guideViewport, fullscreenPreviousSibling);
   }
