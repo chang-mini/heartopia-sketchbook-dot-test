@@ -20,6 +20,7 @@ function createResultViewController({
   zoomInButton,
   gridToggleButton,
   sidebarToggleButton,
+  canvasFullscreenButton,
   saveCurrentButton,
   viewerState,
   renderPalette,
@@ -112,6 +113,7 @@ function createResultViewController({
     zoomInButton.disabled = !enabled;
     if (gridToggleButton) gridToggleButton.disabled = !enabled;
     if (sidebarToggleButton) sidebarToggleButton.disabled = !enabled;
+    if (canvasFullscreenButton) canvasFullscreenButton.disabled = !enabled;
   }
 
   function updateSaveButtonState(enabled) {

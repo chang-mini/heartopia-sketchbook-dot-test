@@ -8,6 +8,7 @@
 import {
   bookRangeField,
   bookSegmentInput,
+  canvasFullscreenButton,
   cropBox,
   cropFrame,
   cropImage,
@@ -42,6 +43,7 @@ import {
   guideContext,
   guideEmpty,
   guideEmptyText,
+  guideFullscreenClose,
   guideViewport,
   imageInput,
   mainShell,
@@ -349,6 +351,7 @@ const {
   zoomInButton,
   gridToggleButton,
   sidebarToggleButton,
+  canvasFullscreenButton,
   saveCurrentButton,
   viewerState,
   renderPalette,
@@ -834,6 +837,25 @@ sidebarToggleButton?.addEventListener("click", () => {
   sidebarToggleButton.setAttribute("aria-pressed", String(isHidden));
   sidebarToggleButton.textContent = isHidden ? "사이드바 보이기" : "사이드바 숨기기";
   sidebar.addEventListener("transitionend", () => fitGuideToViewport(false), { once: true });
+});
+function enterCanvasFullscreen() {
+  guideViewport.classList.add("is-fullscreen");
+  document.body.classList.add("canvas-fullscreen");
+  guideFullscreenClose.hidden = false;
+  window.requestAnimationFrame(() => fitGuideToViewport(true));
+}
+function exitCanvasFullscreen() {
+  guideViewport.classList.remove("is-fullscreen");
+  document.body.classList.remove("canvas-fullscreen");
+  guideFullscreenClose.hidden = true;
+  window.requestAnimationFrame(() => fitGuideToViewport(true));
+}
+canvasFullscreenButton?.addEventListener("click", enterCanvasFullscreen);
+guideFullscreenClose?.addEventListener("click", exitCanvasFullscreen);
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && guideViewport.classList.contains("is-fullscreen")) {
+    exitCanvasFullscreen();
+  }
 });
 saveCurrentButton?.addEventListener("click", saveCurrentConversion);
 gridColorToggleButton?.addEventListener("click", toggleGridColorPanel);

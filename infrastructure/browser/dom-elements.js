@@ -61,6 +61,8 @@ const zoomResetButton = document.getElementById("zoom-reset");
 const zoomInButton = document.getElementById("zoom-in");
 const gridToggleButton = document.getElementById("grid-toggle");
 const sidebarToggleButton = document.getElementById("sidebar-toggle");
+const canvasFullscreenButton = document.getElementById("canvas-fullscreen");
+const guideFullscreenClose = document.getElementById("guide-fullscreen-close");
 const sidebar = document.querySelector(".sidebar");
 const paletteSidebar = document.getElementById("palette-sidebar");
 const palette = document.getElementById("palette");
@@ -81,6 +83,7 @@ const guideContext = guideCanvas?.getContext("2d");
 
 export {
   bookRangeField,
+  canvasFullscreenButton,
   bookSegmentInput,
   bookSegmentOverlays,
   cropBox,
@@ -118,6 +121,7 @@ export {
   guideContext,
   guideEmpty,
   guideEmptyText,
+  guideFullscreenClose,
   guideViewport,
   imageInput,
   mainShell,
