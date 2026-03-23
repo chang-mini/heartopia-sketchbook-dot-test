@@ -71,7 +71,6 @@ import {
   viewerShell,
   zoomInButton,
   zoomOutButton,
-  zoomPixelButton,
   zoomResetButton,
   gridToggleButton,
   sidebar,
@@ -348,7 +347,6 @@ const {
   zoomOutButton,
   zoomResetButton,
   zoomInButton,
-  zoomPixelButton,
   gridToggleButton,
   sidebarToggleButton,
   saveCurrentButton,
@@ -432,7 +430,6 @@ const {
   scheduleGuideViewportFit,
   zoomGuide,
   zoomGuideAtViewportCenter,
-  zoomToPixelPerfect,
 } = createGuideCanvasController({
   guideCanvas,
   guideContext,
@@ -820,7 +817,6 @@ guideViewport?.addEventListener("pointerleave", clearGuideHover);
 zoomOutButton?.addEventListener("click", () => zoomGuideAtViewportCenter(1 / 1.2));
 zoomResetButton?.addEventListener("click", () => fitGuideToViewport(true));
 zoomInButton?.addEventListener("click", () => zoomGuideAtViewportCenter(1.2));
-zoomPixelButton?.addEventListener("click", zoomToPixelPerfect);
 gridToggleButton?.addEventListener("click", () => {
   viewerState.showGrid = !viewerState.showGrid;
   gridToggleButton.setAttribute("aria-pressed", String(viewerState.showGrid));

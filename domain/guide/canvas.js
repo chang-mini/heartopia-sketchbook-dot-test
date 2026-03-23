@@ -139,33 +139,6 @@ function createGuideCanvasController({
     zoomGuide(factor, rect.width / 2, rect.height / 2);
   }
 
-  function zoomToPixelPerfect() {
-    if (!viewerState.rows || !viewerState.columns) {
-      return;
-    }
-
-    const size = resizeGuideCanvas();
-    if (!size) {
-      return;
-    }
-
-    const snappedScale = clamp(Math.max(1, Math.round(viewerState.scale)), viewerState.minScale, viewerState.maxScale);
-    const rect = guideViewport.getBoundingClientRect();
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    const gridX = (centerX - viewerState.panX) / viewerState.scale;
-    const gridY = (centerY - viewerState.panY) / viewerState.scale;
-
-    viewerState.scale = snappedScale;
-    viewerState.panX = centerX - (gridX * snappedScale);
-    viewerState.panY = centerY - (gridY * snappedScale);
-
-    clampGuidePan();
-    drawGuideCanvas();
-    updateViewerNote();
-    updateViewerDetail();
-  }
-
   function zoomGuide(factor, originX, originY) {
     const currentScale = viewerState.scale;
     const nextScale = clamp(currentScale * factor, viewerState.minScale, viewerState.maxScale);
@@ -472,7 +445,6 @@ function createGuideCanvasController({
     scheduleGuideViewportFit,
     zoomGuide,
     zoomGuideAtViewportCenter,
-    zoomToPixelPerfect,
   };
 }
 

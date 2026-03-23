@@ -18,7 +18,6 @@ function createResultViewController({
   zoomOutButton,
   zoomResetButton,
   zoomInButton,
-  zoomPixelButton,
   gridToggleButton,
   sidebarToggleButton,
   saveCurrentButton,
@@ -111,7 +110,6 @@ function createResultViewController({
     zoomOutButton.disabled = !enabled;
     zoomResetButton.disabled = !enabled;
     zoomInButton.disabled = !enabled;
-    if (zoomPixelButton) zoomPixelButton.disabled = !enabled;
     if (gridToggleButton) gridToggleButton.disabled = !enabled;
     if (sidebarToggleButton) sidebarToggleButton.disabled = !enabled;
   }
