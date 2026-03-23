@@ -633,7 +633,7 @@
 
     .viewer-head {
       flex-wrap: wrap;
-      overflow: hidden;
+      overflow: visible;
     }
 
     .crop-head {
