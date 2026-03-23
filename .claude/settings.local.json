@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell -Command \"\n\\\\$src = 'F:\\\\내 드라이브\\\\02.프로그래밍\\\\07.두두타\\\\02.캔버스 도트변환\\\\githubiotest'\n\\\\$dst = 'F:\\\\내 드라이브\\\\02.프로그래밍\\\\07.두두타\\\\02.캔버스 도트변환\\\\githubio'\n\nforeach \\(\\\\$dir in @\\('application','config','domain','infrastructure','js','python','styles'\\)\\) {\n  Copy-Item -Path \\\\\"\\\\$src\\\\\\\\\\\\$dir\\\\\" -Destination \\\\\"\\\\$dst\\\\\\\\\\\\$dir\\\\\" -Recurse -Force\n  Write-Host \\\\\"copied: \\\\$dir\\\\\"\n}\n\nCopy-Item -Path \\\\\"\\\\$src\\\\index.html\\\\\" -Destination \\\\\"\\\\$dst\\\\index.html\\\\\" -Force\nCopy-Item -Path \\\\\"\\\\$src\\\\favicon.png\\\\\" -Destination \\\\\"\\\\$dst\\\\favicon.png\\\\\" -Force\nWrite-Host 'done'\n\")",
+      "Bash(powershell -Command \"Remove-Item -Path 'F:\\\\내 드라이브\\\\02.프로그래밍\\\\07.두두타\\\\02.캔버스 도트변환\\\\githubio\\\\githubiotest' -Recurse -Force; Write-Host 'deleted'\")",
+      "Bash(cmd /c \"attrib -R -H -S \\\\\"F:\\\\\\\\내 드라이브\\\\\\\\02.프로그래밍\\\\\\\\07.두두타\\\\\\\\02.캔버스 도트변환\\\\\\\\githubio\\\\\\\\githubiotest\\\\\\\\.git\\\\\\\\objects\\\\\\\\*\\\\\" /S /D && rd /S /Q \\\\\"F:\\\\\\\\내 드라이브\\\\\\\\02.프로그래밍\\\\\\\\07.두두타\\\\\\\\02.캔버스 도트변환\\\\\\\\githubio\\\\\\\\githubiotest\\\\\" && echo done\")",
+      "Bash(grep -v \"^$\")",
+      "Bash(powershell -Command \"\n\\\\$path = 'F:\\\\내 드라이브\\\\02.프로그래밍\\\\07.두두타\\\\02.캔버스 도트변환\\\\githubio\\\\githubiotest'\nGet-ChildItem -Path \\\\$path -Recurse -Force | ForEach-Object { \\\\$_.Attributes = 'Normal' }\nRemove-Item -Path \\\\$path -Recurse -Force -ErrorAction SilentlyContinue\nif \\(Test-Path \\\\$path\\) { Write-Host 'still exists' } else { Write-Host 'deleted' }\n\")",
+      "Bash(powershell -Command \"\n\\\\$path = 'F:\\\\내 드라이브\\\\02.프로그래밍\\\\07.두두타\\\\02.캔버스 도트변환\\\\githubio\\\\githubiotest\\\\.git'\nGet-ChildItem -Path \\\\$path -Recurse -Force | ForEach-Object { \n  try { \\\\$_.Attributes = 'Normal' } catch {}\n}\nRemove-Item -Path \\\\$path -Recurse -Force -ErrorAction SilentlyContinue\n\\\\$path2 = 'F:\\\\내 드라이브\\\\02.프로그래밍\\\\07.두두타\\\\02.캔버스 도트변환\\\\githubio\\\\githubiotest'\nRemove-Item -Path \\\\$path2 -Recurse -Force\nWrite-Host 'done'\n\")",
+      "Bash(powershell -Command \"\n\\\\$src = 'F:\\\\내 드라이브\\\\02.프로그래밍\\\\07.두두타\\\\02.캔버스 도트변환\\\\githubiotest'\n\\\\$dst = 'F:\\\\내 드라이브\\\\02.프로그래밍\\\\07.두두타\\\\02.캔버스 도트변환\\\\githubio'\n\nGet-ChildItem -Path \\\\$src -Recurse -File | Where-Object {\n  \\\\$_.FullName -notmatch '\\\\\\\\\\\\\\\\\\\\.git\\\\\\\\\\\\\\\\'\n} | ForEach-Object {\n  \\\\$rel = \\\\$_.FullName.Substring\\(\\\\$src.Length + 1\\)\n  \\\\$target = Join-Path \\\\$dst \\\\$rel\n  \\\\$targetDir = Split-Path \\\\$target -Parent\n  if \\(-not \\(Test-Path \\\\$targetDir\\)\\) { New-Item -ItemType Directory -Path \\\\$targetDir -Force | Out-Null }\n  Copy-Item -Path \\\\$_.FullName -Destination \\\\$target -Force\n}\nWrite-Host 'copy done'\n\")",
+      "Bash(python3:*)",
+      "Bash(python:*)"
+    ]
+  }
+}
