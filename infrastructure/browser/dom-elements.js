@@ -59,6 +59,10 @@ const viewerShell = document.querySelector(".viewer-shell");
 const zoomOutButton = document.getElementById("zoom-out");
 const zoomResetButton = document.getElementById("zoom-reset");
 const zoomInButton = document.getElementById("zoom-in");
+const zoomPixelButton = document.getElementById("zoom-pixel");
+const gridToggleButton = document.getElementById("grid-toggle");
+const sidebarToggleButton = document.getElementById("sidebar-toggle");
+const sidebar = document.querySelector(".sidebar");
 const paletteSidebar = document.getElementById("palette-sidebar");
 const palette = document.getElementById("palette");
 const palettePreview = document.getElementById("palette-preview");
@@ -144,5 +148,9 @@ export {
   viewerShell,
   zoomInButton,
   zoomOutButton,
+  zoomPixelButton,
   zoomResetButton,
+  gridToggleButton,
+  sidebar,
+  sidebarToggleButton,
 };

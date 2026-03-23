@@ -71,7 +71,11 @@ import {
   viewerShell,
   zoomInButton,
   zoomOutButton,
+  zoomPixelButton,
   zoomResetButton,
+  gridToggleButton,
+  sidebar,
+  sidebarToggleButton,
 } from "../infrastructure/browser/dom-elements.js";
 import { buildCroppedFilename, canvasToBlob, getPreferredUploadType, triggerFileDownload } from "../infrastructure/browser/files.js";
 import { createPyodideConverter } from "../infrastructure/pyodide/runtime.js";
@@ -344,6 +348,9 @@ const {
   zoomOutButton,
   zoomResetButton,
   zoomInButton,
+  zoomPixelButton,
+  gridToggleButton,
+  sidebarToggleButton,
   saveCurrentButton,
   viewerState,
   renderPalette,
@@ -425,6 +432,7 @@ const {
   scheduleGuideViewportFit,
   zoomGuide,
   zoomGuideAtViewportCenter,
+  zoomToPixelPerfect,
 } = createGuideCanvasController({
   guideCanvas,
   guideContext,
@@ -812,6 +820,19 @@ guideViewport?.addEventListener("pointerleave", clearGuideHover);
 zoomOutButton?.addEventListener("click", () => zoomGuideAtViewportCenter(1 / 1.2));
 zoomResetButton?.addEventListener("click", () => fitGuideToViewport(true));
 zoomInButton?.addEventListener("click", () => zoomGuideAtViewportCenter(1.2));
+zoomPixelButton?.addEventListener("click", zoomToPixelPerfect);
+gridToggleButton?.addEventListener("click", () => {
+  viewerState.showGrid = !viewerState.showGrid;
+  gridToggleButton.setAttribute("aria-pressed", String(viewerState.showGrid));
+  drawGuideCanvas();
+});
+sidebarToggleButton?.addEventListener("click", () => {
+  const isHidden = sidebar.classList.toggle("is-hidden");
+  mainShell.classList.toggle("sidebar-hidden", isHidden);
+  sidebarToggleButton.setAttribute("aria-pressed", String(isHidden));
+  sidebarToggleButton.textContent = isHidden ? "사이드바 보이기" : "사이드바 숨기기";
+  sidebar.addEventListener("transitionend", () => fitGuideToViewport(false), { once: true });
+});
 saveCurrentButton?.addEventListener("click", saveCurrentConversion);
 gridColorToggleButton?.addEventListener("click", toggleGridColorPanel);
 gridColorInput?.addEventListener("input", handleGridColorInput);
