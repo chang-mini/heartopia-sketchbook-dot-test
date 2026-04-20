@@ -4,7 +4,7 @@ import json
 from collections import Counter
 from functools import lru_cache
 
-from PIL import Image, ImageEnhance, ImageOps
+from PIL import Image, ImageOps
 
 from palette import PALETTE, rgb_to_oklab
 from presets import get_custom_preset
@@ -30,12 +30,7 @@ _PASTEL_HUE_WEIGHT = 20.0
 _PASTEL_UNDERSAT_PENALTY = 40.0
 # Sources below this chroma threshold are treated as "effectively neutral" —
 # no undersaturation penalty, so a pure-white source matches B5 instead of P8.
-_NEAR_GRAY_CHROMA_FLOOR = 0.008
-# JPEG/photographed sources tend to compress chroma, so a very faint pink tint
-# (avg chroma ~0.014 on real inputs) collapses onto B5 "pure white" because the
-# pink tint is mathematically below any reasonable threshold. A mild pre-boost
-# recovers the tint the eye sees without over-saturating already-vivid colors.
-_SOURCE_SATURATION_BOOST = 1.3
+_NEAR_GRAY_CHROMA_FLOOR = 0.02
 
 
 def convert_dot_snapshot(payload_json: str) -> str:
@@ -91,8 +86,6 @@ def convert_dot_snapshot(payload_json: str) -> str:
         image = corrected.convert("RGBA")
         background = Image.new("RGBA", image.size, "white")
         composed = Image.alpha_composite(background, image).convert("RGB")
-        if _SOURCE_SATURATION_BOOST != 1.0:
-            composed = ImageEnhance.Color(composed).enhance(_SOURCE_SATURATION_BOOST)
         # The browser crop box already defines the exact framing.
         # Resize directly so the selected area is preserved without a second crop.
         # Use NEAREST when source matches or is close to target size to avoid
