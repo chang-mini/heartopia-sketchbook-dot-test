@@ -3,38 +3,6 @@ def _hex_to_rgb(hex_value: str) -> tuple[int, int, int]:
     return tuple(int(clean[index:index + 2], 16) for index in (0, 2, 4))
 
 
-def _srgb_channel_to_linear(channel_0_1: float) -> float:
-    if channel_0_1 <= 0.04045:
-        return channel_0_1 / 12.92
-    return ((channel_0_1 + 0.055) / 1.055) ** 2.4
-
-
-def _safe_cbrt(value: float) -> float:
-    if value >= 0:
-        return value ** (1.0 / 3.0)
-    return -((-value) ** (1.0 / 3.0))
-
-
-def rgb_to_oklab(red: int, green: int, blue: int) -> tuple[float, float, float]:
-    linear_r = _srgb_channel_to_linear(red / 255.0)
-    linear_g = _srgb_channel_to_linear(green / 255.0)
-    linear_b = _srgb_channel_to_linear(blue / 255.0)
-
-    long_cone = 0.4122214708 * linear_r + 0.5363325363 * linear_g + 0.0514459929 * linear_b
-    medium_cone = 0.2119034982 * linear_r + 0.6806995451 * linear_g + 0.1073969566 * linear_b
-    short_cone = 0.0883024619 * linear_r + 0.2817188376 * linear_g + 0.6299787005 * linear_b
-
-    long_ = _safe_cbrt(long_cone)
-    medium_ = _safe_cbrt(medium_cone)
-    short_ = _safe_cbrt(short_cone)
-
-    lightness = 0.2104542553 * long_ + 0.7936177850 * medium_ - 0.0040720468 * short_
-    axis_a = 1.9779984951 * long_ - 2.4285922050 * medium_ + 0.4505937099 * short_
-    axis_b = 0.0259040371 * long_ + 0.7827717662 * medium_ - 0.8086757660 * short_
-
-    return (lightness, axis_a, axis_b)
-
-
 _PALETTE_ROWS: list[tuple[str, str, str]] = [
     ("B1", "Black", "#051616"), ("B2", "Black", "#414545"), ("B3", "Black", "#808282"), ("B4", "Black", "#bebfbf"), ("B5", "Black", "#feffff"),
     ("Re1", "Red", "#cf354d"), ("Re2", "Red", "#ee6f72"), ("Re3", "Red", "#a6263d"), ("Re4", "Red", "#f5aca6"), ("Re5", "Red", "#c98483"),
@@ -63,22 +31,12 @@ _PALETTE_ROWS: list[tuple[str, str, str]] = [
     ("P6", "Pink", "#8b5367"), ("P7", "Pink", "#60354b"), ("P8", "Pink", "#e4d5da"), ("P9", "Pink", "#bcadb1"), ("P10", "Pink", "#725e66"),
 ]
 
-def _oklab_chroma(oklab: tuple[float, float, float]) -> float:
-    _, axis_a, axis_b = oklab
-    return (axis_a * axis_a + axis_b * axis_b) ** 0.5
-
-
-def _build_palette_entry(code: str, group: str, hex_value: str) -> dict[str, object]:
-    rgb = _hex_to_rgb(hex_value)
-    oklab = rgb_to_oklab(*rgb)
-    return {
+PALETTE = [
+    {
         "code": code,
         "group": group,
         "hex_value": hex_value,
-        "rgb": rgb,
-        "oklab": oklab,
-        "oklab_chroma": _oklab_chroma(oklab),
+        "rgb": _hex_to_rgb(hex_value),
     }
-
-
-PALETTE = [_build_palette_entry(*row) for row in _PALETTE_ROWS]
+    for code, group, hex_value in _PALETTE_ROWS
+]
