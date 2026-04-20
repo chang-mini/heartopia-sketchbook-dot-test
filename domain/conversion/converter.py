@@ -6,10 +6,26 @@ from functools import lru_cache
 
 from PIL import Image, ImageOps
 
-from palette import PALETTE
+from palette import PALETTE, rgb_to_oklab
 from presets import get_custom_preset
 
 RESAMPLING = getattr(Image, "Resampling", Image)
+
+# Pastel sources (low source chroma) are the failure case for plain OKLab:
+# the palette only has "light gray-pinks" (P8/Re8/Am8) as bright options, which
+# win on lightness but look washed out. In that regime we down-weight lightness
+# and up-weight hue (a,b) so that a saturated-but-darker same-hue entry (e.g. P4)
+# beats both the gray-of-same-hue (P8) and the hue-shifted-neighbor (Am8).
+# For already-saturated sources the plain OKLab metric works fine and lightness
+# must be respected, so the conditional branch keeps both regimes correct.
+_CHROMA_CAP = 0.08
+_PASTEL_LIGHTNESS_WEIGHT = 0.3
+_PASTEL_CHROMA_WEIGHT = 1.0
+_PASTEL_HUE_WEIGHT = 10.0
+_PASTEL_UNDERSAT_PENALTY = 120.0
+# Sources below this chroma threshold are treated as "effectively neutral" —
+# no undersaturation penalty, so a pure-white source matches B5 instead of P8.
+_NEAR_GRAY_CHROMA_FLOOR = 0.02
 
 
 def convert_dot_snapshot(payload_json: str) -> str:
@@ -23,14 +39,42 @@ def convert_dot_snapshot(payload_json: str) -> str:
 
     @lru_cache(maxsize=65536)
     def nearest_palette_color(red: int, green: int, blue: int) -> dict[str, object]:
-        return min(
-            PALETTE,
-            key=lambda candidate: (
-                ((red - candidate["rgb"][0]) ** 2)
-                + ((green - candidate["rgb"][1]) ** 2)
-                + ((blue - candidate["rgb"][2]) ** 2)
-            ),
-        )
+        lightness, axis_a, axis_b = rgb_to_oklab(red, green, blue)
+        source_chroma = (axis_a * axis_a + axis_b * axis_b) ** 0.5
+        is_pastel_source = source_chroma < _CHROMA_CAP
+
+        best_score: float | None = None
+        best_color: dict[str, object] | None = None
+        for candidate in PALETTE:
+            palette_l, palette_a, palette_b = candidate["oklab"]
+            d_lightness_sq = (lightness - palette_l) ** 2
+            d_a = axis_a - palette_a
+            d_b = axis_b - palette_b
+            d_ab_sq = d_a * d_a + d_b * d_b
+            if is_pastel_source:
+                # Decompose into ΔC (chroma magnitude) and ΔH (hue angle) so
+                # hue can be weighted independently. ΔH² = Δa² + Δb² - ΔC².
+                d_chroma = candidate["oklab_chroma"] - source_chroma
+                d_chroma_sq = d_chroma * d_chroma
+                d_hue_sq = d_ab_sq - d_chroma_sq
+                if d_hue_sq < 0:
+                    d_hue_sq = 0.0  # floating-point guard
+                if source_chroma > _NEAR_GRAY_CHROMA_FLOOR and d_chroma < 0:
+                    penalty = _PASTEL_UNDERSAT_PENALTY * d_chroma_sq
+                else:
+                    penalty = 0.0
+                score = (
+                    _PASTEL_LIGHTNESS_WEIGHT * d_lightness_sq
+                    + _PASTEL_CHROMA_WEIGHT * d_chroma_sq
+                    + _PASTEL_HUE_WEIGHT * d_hue_sq
+                    + penalty
+                )
+            else:
+                score = d_lightness_sq + d_ab_sq
+            if best_score is None or score < best_score:
+                best_score = score
+                best_color = candidate
+        return best_color
 
     with Image.open(payload["path"]) as original:
         corrected = ImageOps.exif_transpose(original)
