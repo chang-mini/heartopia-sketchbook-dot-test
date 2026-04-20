@@ -21,8 +21,13 @@ RESAMPLING = getattr(Image, "Resampling", Image)
 _CHROMA_CAP = 0.08
 _PASTEL_LIGHTNESS_WEIGHT = 0.3
 _PASTEL_CHROMA_WEIGHT = 1.0
-_PASTEL_HUE_WEIGHT = 10.0
-_PASTEL_UNDERSAT_PENALTY = 120.0
+# Hue weight is high to prevent drift into neighboring hue groups (e.g. pastel
+# pink leaking into Or8 / Am8). Undersaturation penalty is moderate so that very
+# bright highlights can still match the palette's only "very light" entry in
+# that hue family (e.g. P8 for near-white pink), yielding natural shading
+# gradients instead of flattening all pastels onto P4.
+_PASTEL_HUE_WEIGHT = 20.0
+_PASTEL_UNDERSAT_PENALTY = 40.0
 # Sources below this chroma threshold are treated as "effectively neutral" —
 # no undersaturation penalty, so a pure-white source matches B5 instead of P8.
 _NEAR_GRAY_CHROMA_FLOOR = 0.02
