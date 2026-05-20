@@ -629,6 +629,10 @@ const {
   getGuideGridColor: () => guideGridColor,
   getActiveMode: () => activeMode,
   getCurrentResultSnapshot: () => currentResultSnapshot,
+  getTemplateMaskLines: () => {
+    const canvas = templateController?.getSelectedCanvas();
+    return canvas?.maskLines || null;
+  },
   ratioInput,
   precisionInput,
   getBookSegment,
