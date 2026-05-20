@@ -283,6 +283,11 @@ function createModeWorkspaceController({
     }
     if (modeLockedNote) {
       modeLockedNote.hidden = !(isBookMode || isTemplateModeActive);
+      if (isTemplateModeActive) {
+        modeLockedNote.textContent = "비율과 정밀도는 선택한 파트 크기로 고정됩니다.";
+      } else if (isBookMode) {
+        modeLockedNote.textContent = "책 모드는 16:9, 정밀도 4로 고정됩니다. 범위 선택 후 도안 생성합니다.";
+      }
     }
     if (bookRangeField) {
       bookRangeField.hidden = !isBookMode;
