@@ -430,9 +430,9 @@ function createGuideCanvasController({
     }
 
     guideContext.save();
-    guideContext.strokeStyle = "rgba(96, 68, 51, .55)";
-    guideContext.lineWidth = Math.max(1.5, cellSize * 0.08);
-    guideContext.setLineDash([Math.max(3, cellSize * 0.3), Math.max(2, cellSize * 0.2)]);
+    guideContext.strokeStyle = "rgba(200, 60, 40, .85)";
+    guideContext.lineWidth = Math.max(2.5, cellSize * 0.15);
+    guideContext.setLineDash([Math.max(4, cellSize * 0.4), Math.max(3, cellSize * 0.25)]);
 
     for (const polygon of maskLines) {
       if (polygon.length < 2) continue;
