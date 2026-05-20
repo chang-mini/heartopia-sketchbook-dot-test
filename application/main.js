@@ -130,6 +130,7 @@ import { createMosaicRenderer } from "../domain/multi/mosaic.js";
 import { computePieceRects, getDefaultLayoutForCount } from "../domain/multi/layout.js";
 import { buildMultiBundleFilename, buildMultiPieceFilename } from "../domain/multi/filename.js";
 import { buildMultiBundleSnapshot } from "../domain/multi/bundle.js";
+import { createTemplateMaskOverlayRenderer } from "../domain/crop/template-overlays.js";
 import { createMultiSketchbookController } from "./multi-sketchbook-controller.js";
 import { createTemplateController } from "./template-controller.js";
 import { applyMaskToGridCodes, normalizeTemplateAppliedCanvases, normalizeTemplateCanvasCrops, normalizeStoredTemplateCrop } from "../domain/template/grid.js";
@@ -307,6 +308,16 @@ const { renderBookCropOverlays } = createBookCropOverlayRenderer({
   normalizeBookAppliedSegments,
   normalizeBookSegmentCrops,
 });
+const { renderTemplateMaskOverlays } = createTemplateMaskOverlayRenderer({
+  APP_MODES,
+  getVisibleCropViews,
+  getNaturalCropImageElement,
+  getActiveMode: () => activeMode,
+  getCropDisplayMetrics,
+  getCropSelectionForView,
+  getCropSelection: () => cropSelection,
+  getSelectedTemplateCanvas: () => templateController?.getSelectedCanvas() ?? null,
+});
 const { renderMultiSplitOverlays } = createMultiSplitOverlayRenderer({
   APP_MODES,
   getActiveMode: () => activeMode,
@@ -365,6 +376,7 @@ const templateController = createTemplateController({
   onCanvasChanged: () => {
     if (templateController?.isTemplateMode() && cropImage?.naturalWidth) {
       applyDefaultCropSelection();
+      renderTemplateMaskOverlays();
     }
   },
 });
@@ -409,6 +421,7 @@ const {
   getCropPixelsForSelection,
   renderBookCropOverlays,
   renderMultiSplitOverlays,
+  renderTemplateMaskOverlays,
 });
   // -- Palette --
 const {

@@ -110,6 +110,8 @@ const expandedClothesCanvasWrap = document.getElementById("expanded-clothes-canv
 const expandedClothesCanvasInput = document.getElementById("expanded-clothes-canvas");
 const expandedFurnitureCanvasWrap = document.getElementById("expanded-furniture-canvas-wrap");
 const expandedFurnitureCanvasInput = document.getElementById("expanded-furniture-canvas");
+const templateMaskOverlay = document.getElementById("template-mask-overlay");
+const expandedTemplateMaskOverlay = document.getElementById("expanded-template-mask-overlay");
 
 export {
   bookRangeField,
@@ -215,4 +217,6 @@ export {
   expandedClothesCanvasInput,
   expandedFurnitureCanvasWrap,
   expandedFurnitureCanvasInput,
+  templateMaskOverlay,
+  expandedTemplateMaskOverlay,
 };
