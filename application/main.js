@@ -801,6 +801,8 @@ const {
 } = createModeWorkspaceController({
   APP_MODES,
   BOOK_LAYOUT,
+  cropFrame,
+  expandedCropFrame,
   cropImage,
   submitButton,
   ratioInput,

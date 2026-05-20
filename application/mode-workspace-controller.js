@@ -11,6 +11,8 @@ Usage:
 function createModeWorkspaceController({
   APP_MODES,
   BOOK_LAYOUT,
+  cropFrame,
+  expandedCropFrame,
   cropImage,
   submitButton,
   ratioInput,
@@ -346,6 +348,9 @@ function createModeWorkspaceController({
     syncExpandedSketchbookControls();
     expandedCropModal?.classList.toggle("is-book-mode", isBookMode);
     expandedCropModal?.classList.toggle("is-multi-mode", isMultiMode);
+    expandedCropModal?.classList.toggle("is-template-mode", isTemplateModeActive);
+    cropFrame?.classList.toggle("is-template-mode", isTemplateModeActive);
+    expandedCropFrame?.classList.toggle("is-template-mode", isTemplateModeActive);
 
     modeTabButtons.forEach((button) => {
       const isActive = button.dataset.modeTab === getActiveMode();
