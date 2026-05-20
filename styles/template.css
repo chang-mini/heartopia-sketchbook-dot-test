@@ -4,6 +4,12 @@
   margin-block: 0.25rem;
 }
 
+.template-item-field[hidden],
+.template-canvas-field[hidden],
+.expanded-template-wrap[hidden] {
+  display: none;
+}
+
 .expanded-template-wrap {
   display: flex;
   align-items: center;
