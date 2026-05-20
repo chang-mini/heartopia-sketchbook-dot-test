@@ -40,6 +40,8 @@ function createConversionSessionController({
   setPollingHandle,
   setSubmitEnabled,
   applyMaskToGridCodes = (g) => g,
+  embedBBoxGridIntoCanvas = null,
+  computeMaskBBox = null,
   getTemplateSnapshot = () => null,
   setTemplateSnapshot = () => {},
   buildTemplateCanvasSnapshot = () => null,
@@ -114,9 +116,15 @@ function createConversionSessionController({
         }
       } else if (isTemplateConversion) {
         const tCanvas = pendingConversionContext.templateCanvas;
-        const maskedGridCodes = tCanvas?.maskLines
-          ? applyMaskToGridCodes(snapshot.grid_codes, tCanvas.maskLines)
-          : snapshot.grid_codes;
+        let maskedGridCodes;
+        if (tCanvas?.maskLines && embedBBoxGridIntoCanvas && computeMaskBBox) {
+          const bbox = computeMaskBBox(tCanvas.maskLines, tCanvas.w, tCanvas.h);
+          maskedGridCodes = embedBBoxGridIntoCanvas(snapshot.grid_codes, bbox, tCanvas.w, tCanvas.h, tCanvas.maskLines);
+        } else {
+          maskedGridCodes = tCanvas?.maskLines
+            ? applyMaskToGridCodes(snapshot.grid_codes, tCanvas.maskLines)
+            : snapshot.grid_codes;
+        }
         const nextCanvasSnapshot = buildTemplateCanvasSnapshot(
           pendingConversionContext.mode,
           tCanvas,

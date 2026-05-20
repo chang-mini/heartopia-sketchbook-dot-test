@@ -133,7 +133,7 @@ import { buildMultiBundleSnapshot } from "../domain/multi/bundle.js";
 import { createTemplateMaskOverlayRenderer } from "../domain/crop/template-overlays.js";
 import { createMultiSketchbookController } from "./multi-sketchbook-controller.js";
 import { createTemplateController } from "./template-controller.js";
-import { applyMaskToGridCodes, normalizeTemplateAppliedCanvases, normalizeTemplateCanvasCrops, normalizeStoredTemplateCrop } from "../domain/template/grid.js";
+import { applyMaskToGridCodes, computeMaskBBox, embedBBoxGridIntoCanvas, normalizeTemplateAppliedCanvases, normalizeTemplateCanvasCrops, normalizeStoredTemplateCrop } from "../domain/template/grid.js";
 import { createCropInteractionController } from "../domain/crop/interactions.js";
 import { createCropSelectionController } from "../domain/crop/selection.js";
 import { createCropWorkspaceController } from "../domain/crop/workspace.js";
@@ -575,6 +575,8 @@ const {
     submitButton.disabled = !enabled;
   },
   applyMaskToGridCodes,
+  embedBBoxGridIntoCanvas,
+  computeMaskBBox,
   getTemplateSnapshot: (mode) => mode === APP_MODES.CLOTHES ? clothesSnapshot : furnitureSnapshot,
   setTemplateSnapshot: (mode, snapshot) => {
     if (mode === APP_MODES.CLOTHES) clothesSnapshot = snapshot;
@@ -1090,6 +1092,7 @@ submissionController = createSubmissionController({
   setCropStageExpanded,
   getTuningValues,
   getSelectedTemplateCanvas: () => templateController?.getSelectedCanvas() ?? null,
+  getSelectedTemplateBBox: () => templateController?.getSelectedCanvasBBox() ?? null,
   isTemplateMode: () => templateController?.isTemplateMode() ?? false,
   buildCurrentTemplateCrop: () => {
     const selection = cropSelection;

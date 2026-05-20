@@ -61,6 +61,7 @@ function createSubmissionController({
   onMultiConversionFinished = () => {},
   onMultiConversionFailed = () => {},
   getSelectedTemplateCanvas = () => null,
+  getSelectedTemplateBBox = () => null,
   isTemplateMode = () => false,
   buildCurrentTemplateCrop = () => null,
 }) {
@@ -119,10 +120,10 @@ function createSubmissionController({
         canvasWidth = bookSegment.width;
         canvasHeight = BOOK_LAYOUT.usableHeight;
       } else if (isTemplateMode()) {
-        const tCanvas = getSelectedTemplateCanvas();
-        if (tCanvas) {
-          canvasWidth = tCanvas.w;
-          canvasHeight = tCanvas.h;
+        const bbox = getSelectedTemplateBBox();
+        if (bbox) {
+          canvasWidth = bbox.w;
+          canvasHeight = bbox.h;
         }
       }
       const snapshot = await convertImageLocally({

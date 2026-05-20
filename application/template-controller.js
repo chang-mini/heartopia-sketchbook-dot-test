@@ -15,6 +15,7 @@ import {
   getTemplatesByCategory,
   TEMPLATE_CATEGORIES,
 } from "../config/template-catalog.js";
+import { computeMaskBBox } from "../domain/template/grid.js";
 
 function createTemplateController({
   APP_MODES,
@@ -118,20 +119,27 @@ function createTemplateController({
     populateCanvasOptions(preset);
   }
 
-  function getTemplateCropRatio() {
+  function getSelectedCanvasBBox() {
     const canvas = getSelectedCanvas();
-    if (!canvas) return 1;
-    return canvas.w / canvas.h;
+    if (!canvas) return null;
+    return computeMaskBBox(canvas.maskLines, canvas.w, canvas.h);
+  }
+
+  function getTemplateCropRatio() {
+    const bbox = getSelectedCanvasBBox();
+    if (!bbox) return 1;
+    return bbox.w / bbox.h;
   }
 
   function getTemplateCropRatioLabel() {
-    const canvas = getSelectedCanvas();
-    if (!canvas) return "1:1";
-    return `${canvas.w}:${canvas.h}`;
+    const bbox = getSelectedCanvasBBox();
+    if (!bbox) return "1:1";
+    return `${bbox.w}:${bbox.h}`;
   }
 
   return {
     getSelectedCanvas,
+    getSelectedCanvasBBox,
     getSelectedCanvasId,
     getSelectedItemId,
     getSelectedPreset,

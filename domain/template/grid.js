@@ -154,9 +154,61 @@ function normalizeTemplateCanvasCrops(crops, templatePreset) {
   return normalized;
 }
 
+/**
+ * Compute the integer bounding box of all maskLines polygons.
+ * Returns {x, y, w, h} where (x,y) is the top-left offset and (w,h) is the size.
+ * Falls back to {x:0, y:0, w:canvasW, h:canvasH} if no maskLines.
+ */
+function computeMaskBBox(maskLines, canvasW, canvasH) {
+  if (!maskLines?.length) {
+    return { x: 0, y: 0, w: canvasW, h: canvasH };
+  }
+
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+
+  for (const polygon of maskLines) {
+    for (const pt of polygon) {
+      if (pt.x < minX) minX = pt.x;
+      if (pt.y < minY) minY = pt.y;
+      if (pt.x > maxX) maxX = pt.x;
+      if (pt.y > maxY) maxY = pt.y;
+    }
+  }
+
+  const x = Math.max(0, Math.floor(minX));
+  const y = Math.max(0, Math.floor(minY));
+  const x2 = Math.min(canvasW, Math.ceil(maxX));
+  const y2 = Math.min(canvasH, Math.ceil(maxY));
+
+  return { x, y, w: x2 - x, h: y2 - y };
+}
+
+/**
+ * Place a smaller grid (bboxW × bboxH) into a full canvas grid at offset (bboxX, bboxY),
+ * then apply the mask. Returns the full canvas-sized grid.
+ */
+function embedBBoxGridIntoCanvas(bboxGrid, bbox, canvasW, canvasH, maskLines) {
+  const fullGrid = Array.from({ length: canvasH }, () => Array.from({ length: canvasW }, () => ""));
+  for (let row = 0; row < bbox.h; row += 1) {
+    for (let col = 0; col < bbox.w; col += 1) {
+      const targetRow = bbox.y + row;
+      const targetCol = bbox.x + col;
+      if (targetRow < canvasH && targetCol < canvasW && bboxGrid[row]?.[col]) {
+        fullGrid[targetRow][targetCol] = bboxGrid[row][col];
+      }
+    }
+  }
+  return maskLines ? applyMaskToGridCodes(fullGrid, maskLines) : fullGrid;
+}
+
 export {
   isPointInsideMaskLines,
   applyMaskToGridCodes,
+  computeMaskBBox,
+  embedBBoxGridIntoCanvas,
   normalizeTemplateAppliedCanvases,
   normalizeTemplateCanvasCrops,
   normalizeStoredTemplateCrop,

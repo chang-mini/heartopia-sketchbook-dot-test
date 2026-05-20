@@ -1,11 +1,14 @@
 /*
 Module: template crop overlays
 Description: Renders maskLines polygon outlines on the crop selection area for clothes/furniture modes.
+             Polygons are drawn relative to the mask bounding box so they fill the crop selection edge-to-edge.
 Domain: domain/crop
-Dependencies: none
+Dependencies: ../template/grid.js
 Usage:
   const { renderTemplateMaskOverlays } = createTemplateMaskOverlayRenderer({...});
 */
+
+import { computeMaskBBox } from "../template/grid.js";
 
 function createTemplateMaskOverlayRenderer({
   APP_MODES,
@@ -70,20 +73,21 @@ function createTemplateMaskOverlayRenderer({
     }
 
     const { w, h, maskLines } = tCanvas;
-    const scaleX = selWidth / w;
-    const scaleY = selHeight / h;
+    const bbox = computeMaskBBox(maskLines, w, h);
+    const scaleX = selWidth / bbox.w;
+    const scaleY = selHeight / bbox.h;
 
     const pathStrings = maskLines.map((polygon) => {
       const points = polygon.map((pt, i) => {
-        const px = selLeft + (pt.x * scaleX);
-        const py = selTop + (pt.y * scaleY);
+        const px = selLeft + ((pt.x - bbox.x) * scaleX);
+        const py = selTop + ((pt.y - bbox.y) * scaleY);
         return `${i === 0 ? "M" : "L"}${px.toFixed(1)},${py.toFixed(1)}`;
       });
       return points.join(" ") + " Z";
     });
 
-    const svgWidth = metrics.containerWidth || metrics.width + metrics.offsetLeft * 2;
-    const svgHeight = metrics.containerHeight || metrics.height + metrics.offsetTop * 2;
+    const svgWidth = metrics.width + metrics.offsetLeft * 2;
+    const svgHeight = metrics.height + metrics.offsetTop * 2;
 
     overlay.hidden = false;
     overlay.innerHTML = `<svg class="template-mask-svg" width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}" xmlns="http://www.w3.org/2000/svg">
