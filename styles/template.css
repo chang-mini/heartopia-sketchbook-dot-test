@@ -1,0 +1,21 @@
+/* Template mode (clothes / furniture) fields */
+.template-item-field,
+.template-canvas-field {
+  margin-block: 0.25rem;
+}
+
+.expanded-template-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.expanded-template-wrap label {
+  white-space: nowrap;
+  font-size: var(--fs-sm, 0.85rem);
+}
+
+.expanded-template-wrap select {
+  flex: 1;
+  min-width: 0;
+}

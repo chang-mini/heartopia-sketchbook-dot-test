@@ -33,6 +33,12 @@ function createModeWorkspaceController({
   multiMosaicView,
   multiSplitOverlayLayer,
   expandedMultiSplitOverlayLayer,
+  clothesItemField,
+  clothesCanvasField,
+  furnitureItemField,
+  furnitureCanvasField,
+  expandedClothesCanvasWrap,
+  expandedFurnitureCanvasWrap,
   createEmptyGridCodes,
   buildUsedColorsFromGrid,
   normalizeBookAppliedSegments,
@@ -70,6 +76,12 @@ function createModeWorkspaceController({
   getCurrentMultiSnapshot = () => null,
   setCurrentMultiSnapshot = () => {},
   getCropSelection,
+  getClothesSnapshot = () => null,
+  getFurnitureSnapshot = () => null,
+  isTemplateMode = () => false,
+  syncTemplateCanvasInputs = () => {},
+  renderEmptyTemplateWorkspace = () => {},
+  getTemplateSnapshot = () => null,
 }) {
   function hasSelectOption(select, value) {
     return Boolean(
@@ -212,6 +224,19 @@ function createModeWorkspaceController({
       return;
     }
 
+    if (getActiveMode() === APP_MODES.CLOTHES || getActiveMode() === APP_MODES.FURNITURE) {
+      const tSnapshot = getTemplateSnapshot();
+      if (tSnapshot) {
+        applyModeSnapshot(tSnapshot);
+      } else {
+        renderEmptyTemplateWorkspace();
+      }
+      hideMultiPieceTabs();
+      clearMultiMosaicView();
+      renderMultiSplitOverlays();
+      return;
+    }
+
     const bookSnapshot = getBookSnapshot();
     if (bookSnapshot) {
       applyModeSnapshot(bookSnapshot);
@@ -237,30 +262,38 @@ function createModeWorkspaceController({
   function applyModeUi() {
     const isBookMode = getActiveMode() === APP_MODES.BOOK;
     const isMultiMode = getActiveMode() === APP_MODES.MULTI_SKETCHBOOK;
+    const isClothesMode = getActiveMode() === APP_MODES.CLOTHES;
+    const isFurnitureMode = getActiveMode() === APP_MODES.FURNITURE;
+    const isTemplateModeActive = isClothesMode || isFurnitureMode;
     if (submitButton) {
       submitButton.textContent = "도안 생성 시작";
     }
     if (ratioInput) {
-      ratioInput.disabled = isBookMode;
-      if (isBookMode) {
-        ratioInput.value = BOOK_LAYOUT.ratio;
-      }
+      ratioInput.disabled = isBookMode || isTemplateModeActive;
     }
     if (precisionInput) {
-      precisionInput.disabled = isBookMode;
-      if (isBookMode) {
-        precisionInput.value = String(BOOK_LAYOUT.precision);
-      }
+      precisionInput.disabled = isBookMode || isTemplateModeActive;
     }
-    if (!isBookMode) {
+    if (isBookMode) {
+      if (ratioInput) ratioInput.value = BOOK_LAYOUT.ratio;
+      if (precisionInput) precisionInput.value = String(BOOK_LAYOUT.precision);
+    }
+    if (!isBookMode && !isTemplateModeActive) {
       syncSketchbookControlsFromSnapshot(getSketchbookControlSnapshot());
     }
     if (modeLockedNote) {
-      modeLockedNote.hidden = !isBookMode;
+      modeLockedNote.hidden = !(isBookMode || isTemplateModeActive);
     }
     if (bookRangeField) {
       bookRangeField.hidden = !isBookMode;
     }
+    if (clothesItemField) clothesItemField.hidden = !isClothesMode;
+    if (clothesCanvasField) clothesCanvasField.hidden = !isClothesMode;
+    if (furnitureItemField) furnitureItemField.hidden = !isFurnitureMode;
+    if (furnitureCanvasField) furnitureCanvasField.hidden = !isFurnitureMode;
+    if (expandedClothesCanvasWrap) expandedClothesCanvasWrap.hidden = !isClothesMode;
+    if (expandedFurnitureCanvasWrap) expandedFurnitureCanvasWrap.hidden = !isFurnitureMode;
+    if (isTemplateModeActive) syncTemplateCanvasInputs();
     if (bookSegmentInput) {
       bookSegmentInput.value = getSelectedBookSegmentId();
     }
@@ -271,7 +304,7 @@ function createModeWorkspaceController({
       expandedBookSegmentWrap.hidden = !isBookMode;
     }
     if (expandedSketchbookOptions) {
-      expandedSketchbookOptions.hidden = isBookMode;
+      expandedSketchbookOptions.hidden = isBookMode || isTemplateModeActive;
     }
     if (multiRangeField) {
       multiRangeField.hidden = !isMultiMode;
