@@ -51,7 +51,7 @@ function createTemplateMaskOverlayRenderer({
       return;
     }
 
-    const selection = getCropSelectionForView(view.key) || (view.key === "expanded" ? getCropSelection() : null);
+    const selection = getCropSelectionForView(view.key) || getCropSelection();
     if (!selection) {
       overlay.hidden = true;
       overlay.innerHTML = "";
